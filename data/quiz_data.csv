@@ -391,8 +391,17 @@ Which of the following set of features is the least adapted to NMF?,"['Word Coun
 [(1, 1, 2), (1, 2, 3), (3, 4, 1), (2, 4, 4), (4, 3, 1)]","['[[2 0 0 0],
 [0 3 0 0],
 [0 0 0 1],
-[0 4 1 0]]', '[[0 0 0 1]
-,[0 2 0 0],
+[0 4 1 0]]', '[[0 0 0 1],
+[0 2 0 0],
 [0 0 0 3],
-[0 4 1 0]]', '[[1 0 0 0],[0 3 0 0],[0 2 0 0],[0 0 4 2]]', '[[0 0 0 2],[0 3 4 0],[0 0 0 0],[0 0 1 0]]']","['[[2 0 0 0],[0 3 0 0],[0 0 0 1],[0 4 1 0]]']"
+[0 4 1 0]]', '[[1 0 0 0],
+[0 3 0 0],
+[0 2 0 0],
+[0 0 4 2]]', '[[0 0 0 2],
+[0 3 4 0],
+[0 0 0 0],
+[0 0 1 0]]']","['[[2 0 0 0],
+[0 3 0 0],
+[0 0 0 1],
+[0 4 1 0]]']"
 "In Practice lab: Non-Negative Matrix Factorization, why did we use ""pairwise_distances"" from scikit-learn?","['To calculate the maximum pairwise distance between points in the dataset.', 'To calculate the pairwise distance between NMF encoded version of the original dataset and the encoded query dataset.', 'To calculate the pairwise distance between data points for eliminating outliers.', 'To calculate the pairwise distance between points of the NMF encoded version of the original dataset.']",['To calculate the pairwise distance between NMF encoded version of the original dataset and the encoded query dataset.']
