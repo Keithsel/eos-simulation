@@ -1,0 +1,48 @@
+(True/False) Machine Learning is a subset of Artificial Intelligence,"['False', 'True']",['True']
+What is a Turing test?,"['It tests images.', 'It tests and cleans the dataset.', ""It tests a machine's ability to exhibit intelligent behavior."", 'It tests the dataset.']","[""It tests a machine's ability to exhibit intelligent behavior.""]"
+What are some of the different milestones in deep learning history?,"['Deep Blue defeats a world champion chess player, and AlexNet is created.', 'Deep Blue defeats a world champion chess player and TensorFlow is released', 'Geoffrey Hinton’s work, AlexNet, and TensorFlow', 'Deep Blue defeats a world champion chess player, and Keras is released.']","['Geoffrey Hinton’s work, AlexNet, and TensorFlow']"
+What is artificial intelligence?,"['A subset of deep learning.', 'Any program that can sense, reason, act, and adapt.', 'A subset of machine learning', 'None of the above.']","['Any program that can sense, reason, act, and adapt.']"
+Select the image that displays the line at the optimal point in the phone usage that the data can be split to create a decision boundary.,"['static/img/2.png', 'static/img/3.png', 'static/img/4.png', 'static/img/5.png']",['static/img/5.png']
+"SVM with kernals can be very slow on large datasets. To speed up SVM training, which methods may you perform to map low dimensional data into high dimensional beforehand?","['RBF Sampler', 'Nystroem', 'Regularization', 'Linear SVC']","['RBF Sampler', 'Nystroem']"
+"The data below appears in 'data.txt', and Pandas has been imported. Which Python command will read it correctly into a Pandas DataFrame? 
+
+63.03 22.55 39.61 40.48 98.67 -0.25 AB
+39.06 10.06 25.02 29 114.41 4.56 AB
+68.83 22.22 50.09 46.61 105.99 -3.53 AB","[""pandas.read_csv('data.txt')"", ""pandas.read_csv('data.txt', header=None, sep=' ')"", ""pandas.read_csv('data.txt', delim_whitespace=True)"", ""pandas.read_csv('data.txt', header=0, delim_whitespace=True)""]","[""pandas.read_csv('data.txt', header=None, sep=' ')""]"
+"Given the data visualized below with the classes represented by different colors, should PCA or kernel PCA be used, and why? [Image: static/img/1.png]","['Either is fine because the two classes are clearly separable.', 'Kernel PCA because the data is not linearly separable.', 'Neither because the data cannot be projected onto a lower dimension.', 'PCA because the data is clearly separable when projected onto a lower dimension.']",['Kernel PCA because the data is not linearly separable.']
+"Which option is the sparse representation of the matrix below?
+
+[(1, 1, 2), (1, 2, 3), (3, 4, 1), (2, 4, 4), (4, 3, 1)]","['[[2 0 0 0],
+[0 3 0 0],
+[0 0 0 1],
+[0 4 1 0]]', '[[0 0 0 1],
+[0 2 0 0],
+[0 0 0 3],
+[0 4 1 0]]', '[[1 0 0 0],
+[0 3 0 0],
+[0 2 0 0],
+[0 0 4 2]]', '[[0 0 0 2],
+[0 3 4 0],
+[0 0 0 0],
+[0 0 1 0]]']","['[[2 0 0 0],
+[0 3 0 0],
+[0 0 0 1],
+[0 4 1 0]]']"
+"Which option correctly lists the steps for implementing PCA in Python?
+
+1. Fit PCA to data
+2. Scale the data
+3. Determine the desired number of components based on total explained variance
+4. Define a PCA object","['4, 1, 3, 2', '2, 1, 3, 4', '4, 1, 2, 3', '2, 4, 1, 3']","['2, 4, 1, 3']"
+Usually the first step to fit a random forest classifier model using scikit learn is to:,"['import classifier ensemble from the sklearn.random forest module
+
+e.g. from sklearn.randomforest import ClassifierEnsemble', 'import random forest from the sklearn.classifierensemble module
+
+e.g. from sklearn.classifierensemble import RandomForest', 'import classifer from the sklearn.randomforest module
+
+e.g. from sklearn.randomforest import Classifer', 'import random forest classifer from the sklearn.ensemble module
+
+e.g. from sklearn.ensemble import RandomForestClassifer']","['import random forest classifer from the sklearn.ensemble module
+
+e.g. from sklearn.ensemble import RandomForestClassifer']"
+"Increasing L2/L1 penalties force coefficients to be smaller, restricting their plausible range. This statement is part of what View?","['Geometric View', 'Probabilistic View', 'Analytic View']",['Analytic View']

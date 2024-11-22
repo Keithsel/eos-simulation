@@ -1,0 +1,34 @@
+{% extends "index.html" %}
+
+{% block title %}Quiz Configuration{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2>Quiz Configuration</h2>
+  </div>
+  <div class="card-body">
+    <form method="POST" action="{{ url_for('configure') }}">
+      <div class="mb-3">
+        <label for="username" class="form-label">Username</label>
+        <input type="text" class="form-control" id="username" name="username" required>
+      </div>
+      <div class="mb-3">
+        <label for="num_questions" class="form-label">Number of Questions</label>
+        <input type="number" class="form-control" id="num_questions" name="num_questions" min="1" max="50" value="10"
+          required>
+      </div>
+      <div class="mb-3">
+        <label for="time_limit" class="form-label">Time Limit (minutes)</label>
+        <input type="number" class="form-control" id="time_limit" name="time_limit" min="5" max="180" value="30"
+          required>
+      </div>
+      <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="shuffle_options" name="shuffle_options">
+        <label class="form-check-label" for="shuffle_options">Shuffle answer options</label>
+      </div>
+      <button type="submit" class="btn btn-primary">Start Quiz</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

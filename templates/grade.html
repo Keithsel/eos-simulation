@@ -1,0 +1,30 @@
+{% extends "index.html" %}
+
+{% block title %}Quiz Results{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2>Quiz Results</h2>
+  </div>
+  <div class="card-body">
+    <h3>Score: {{ "%.1f"|format(results.score) }}%</h3>
+    <p>Correct answers: {{ results.correct_count }} out of {{ results.total_questions }}</p>
+
+    <h4 class="mt-4">Question Details</h4>
+    {% for result in results.question_results %}
+    <div class="card mb-3 {% if result.is_correct %}border-success{% else %}border-danger{% endif %}">
+      <div class="card-body">
+        <h5>{{ result.question }}</h5>
+        <p>Your answer: {{ result.submitted|join(', ') }}</p>
+        {% if not result.is_correct %}
+        <p class="text-danger">Correct answer: {{ result.correct|join(', ') }}</p>
+        {% endif %}
+      </div>
+    </div>
+    {% endfor %}
+
+    <a href="{{ url_for('index') }}" class="btn btn-primary">Take Another Quiz</a>
+  </div>
+</div>
+{% endblock %}
