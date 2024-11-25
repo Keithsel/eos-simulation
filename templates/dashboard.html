@@ -1,0 +1,63 @@
+{% extends "index.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2>Welcome, {{ username }}</h2>
+      <a href="{{ url_for('logout') }}" class="btn btn-outline-danger">Logout</a>
+    </div>
+  </div>
+  <div class="card-body">
+    {% with messages = get_flashed_messages(with_categories=True) %}
+    {% if messages %}
+    {% for category, message in messages %}
+    <div class="alert alert-{{ category }}">{{ message }}</div>
+    {% endfor %}
+    {% endif %}
+    {% endwith %}
+    <div class="row">
+      {% if active_quiz %}
+      <div class="col-12 mb-3">
+        <div class="card border-warning">
+          <div class="card-body">
+            <h5 class="card-title text-warning">Active Test</h5>
+            <p>Subject: {{ active_quiz.subject.code }} - {{ active_quiz.subject.name }}</p>
+            <p>Started: {{ active_quiz.start_time.strftime('%Y-%m-%d %H:%M') }}</p>
+            <div class="d-grid gap-2 d-md-flex">
+              <a href="{{ url_for('exam', token=active_quiz.quiz_token) }}" class="btn btn-warning">Continue Test</a>
+              <form action="{{ url_for('clear_active_test') }}" method="POST" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger">Discard Test</button>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+      <div class="col-md-6 mb-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Quick Actions</h5>
+            <div class="d-grid gap-2">
+              <a href="{{ url_for('configure') }}" class="btn btn-primary">Take a Test</a>
+              <a href="{{ url_for('history') }}" class="btn btn-secondary">View Test History</a>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="col-md-6 mb-3">
+        <div class="card h-100">
+          <div class="card-body">
+            <h5 class="card-title">Statistics</h5>
+            <p>Tests taken: {{ stats.tests_taken or 0 }}</p>
+            <p>Average score: {{ "%.1f"|format(stats.avg_score or 0) }}</p>
+            <p>Total time spent: {{ "%.1f"|format((stats.total_time or 0) / 60) }} minutes</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

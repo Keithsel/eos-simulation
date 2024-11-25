@@ -29,7 +29,9 @@ class User(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     tests = relationship("TestHistory", back_populates="user", lazy="dynamic")
-    active_quiz = relationship("ActiveQuiz", back_populates="user", uselist=False, lazy="select")
+    active_quiz = relationship(
+        "ActiveQuiz", back_populates="user", uselist=False, lazy="select"
+    )
     quiz_results = relationship("QuizResult", back_populates="user", lazy="dynamic")
 
     Index("idx_username", "username")
@@ -49,7 +51,9 @@ class Subject(Base):
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
     tests = relationship("TestHistory", back_populates="subject", lazy="dynamic")
-    active_quizzes = relationship("ActiveQuiz", back_populates="subject", lazy="dynamic")
+    active_quizzes = relationship(
+        "ActiveQuiz", back_populates="subject", lazy="dynamic"
+    )
     quiz_results = relationship("QuizResult", back_populates="subject", lazy="dynamic")
 
     Index("idx_subject_code", "code")

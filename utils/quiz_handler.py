@@ -14,16 +14,16 @@ from functools import lru_cache
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+
 class QuizHandler:
     def __init__(self, subject_code: str = "AIL303m"):
-        # Initialize cache first
         self._options_cache = {}
-        
+
         self.db = sessionmaker(bind=engine)()
         self.subject = self.db.query(Subject).filter_by(code=subject_code).first()
         if not self.subject:
             raise ValueError(f"Subject {subject_code} not found")
-            
+
         self.quiz_file = os.path.join("data", self.subject.data_file)
         try:
             self.questions = self._load_questions()
@@ -48,10 +48,10 @@ class QuizHandler:
             if cache_key in self._options_cache:
                 return self._options_cache[cache_key]
 
-            options_str = options_str.strip().strip('"\'')
-            
+            options_str = options_str.strip().strip("\"'")
+
             try:
-                if options_str.startswith('[') and options_str.endswith(']'):
+                if options_str.startswith("[") and options_str.endswith("]"):
                     result = ast.literal_eval(options_str)
                     self._options_cache[cache_key] = result
                     return result
@@ -60,7 +60,9 @@ class QuizHandler:
 
             # Fallback to regex parsing
             options = re.findall(r"\[.*?\]|\".*?\"|'.*?'|[^,]+", options_str)
-            cleaned_options = [opt.strip().strip('"\'').strip('[]').strip() for opt in options]
+            cleaned_options = [
+                opt.strip().strip("\"'").strip("[]").strip() for opt in options
+            ]
             self._options_cache[cache_key] = cleaned_options
             return cleaned_options
 
@@ -82,7 +84,7 @@ class QuizHandler:
                 return []
 
             s = s.strip()
-            
+
             if not s.startswith("["):
                 result = [s.replace("\\n", "\n").strip()]
                 self._options_cache[cache_key] = result
@@ -95,7 +97,6 @@ class QuizHandler:
                 self._options_cache[cache_key] = result
                 return result
             except:
-                # Existing fallback parsing logic
                 items = []
                 current_item = ""
                 in_string = False
@@ -144,14 +145,14 @@ class QuizHandler:
         try:
             # Set CSV field size limit
             self._set_csv_field_limit()
-            
+
             # Load questions using pandas
             questions = self._load_questions_from_csv()
-            
+
             if not questions:
                 logger.error("No valid questions loaded from CSV")
                 return []
-                
+
             return questions
 
         except Exception as e:
@@ -161,6 +162,7 @@ class QuizHandler:
     def _set_csv_field_limit(self):
         """Helper method to set CSV field size limit"""
         import sys
+
         maxInt = sys.maxsize
         while True:
             try:
@@ -174,7 +176,7 @@ class QuizHandler:
         try:
             df = pd.read_csv(
                 self.quiz_file,
-                names=['question', 'choices', 'answer'],
+                names=["question", "choices", "answer"],
                 skiprows=1,
                 quoting=csv.QUOTE_ALL,
                 escapechar="\\",
@@ -186,10 +188,12 @@ class QuizHandler:
             questions = []
             for index, row in df.iterrows():
                 try:
-                    if not all(field in row for field in ['question', 'choices', 'answer']):
+                    if not all(
+                        field in row for field in ["question", "choices", "answer"]
+                    ):
                         logger.warning(f"Row {index}: Missing required fields")
                         continue
-                        
+
                     question = self._parse_question_row(row, index)
                     if question:
                         questions.append(question)
@@ -199,7 +203,7 @@ class QuizHandler:
 
             if not questions:
                 logger.warning("No questions were successfully loaded")
-                
+
             return questions
 
         except Exception as e:
@@ -212,9 +216,9 @@ class QuizHandler:
             logger.warning(f"Skipping row {index}: Insufficient columns")
             return None
 
-        text = str(row['question']).strip()
-        options = self._clean_list_string(row['choices'])
-        correct_answers = self._clean_list_string(row['answer'])
+        text = str(row["question"]).strip()
+        options = self._clean_list_string(row["choices"])
+        correct_answers = self._clean_list_string(row["answer"])
 
         if not options or not correct_answers:
             logger.warning(f"Skipping row {index}: No valid options or answers")
@@ -222,7 +226,7 @@ class QuizHandler:
 
         text = text.replace("\\n", "\n")
         image_url = self._extract_image_url(text)
-        
+
         return {
             "text": text,
             "image_url": "/" + image_url if image_url else None,
@@ -243,7 +247,8 @@ class QuizHandler:
     def _format_options(self, options: List[str]) -> List[Dict[str, str]]:
         """Helper method to format question options"""
         return [
-            {"type": "image", "content": "/" + opt.strip()} if self._is_image_path(opt)
+            {"type": "image", "content": "/" + opt.strip()}
+            if self._is_image_path(opt)
             else {"type": "text", "content": opt.strip()}
             for opt in options
         ]
@@ -254,11 +259,11 @@ class QuizHandler:
             user = User(username=username, question_bag=[], penalty_questions={})
             self.db.add(user)
             self.db.commit()
-            
+
         # Only load active_quiz when needed
-        if getattr(user, '_active_quiz', None) is None:
+        if getattr(user, "_active_quiz", None) is None:
             _ = user.active_quiz
-            
+
         return user
 
     def save_quiz_state(self, username, quiz_token, quiz_data):
@@ -266,7 +271,7 @@ class QuizHandler:
         active_quiz = user.active_quiz
         if not active_quiz:
             active_quiz = ActiveQuiz(user=user, subject=self.subject)
-        
+
         active_quiz.quiz_token = quiz_token
         active_quiz.quiz_data = quiz_data
         self.db.add(active_quiz)
@@ -332,12 +337,12 @@ class QuizHandler:
 
         penalty_questions = []
         for q_text in user.penalty_questions:
-            question = next(
-                (q for q in self.questions if q["text"] == q_text), None
-            )
+            question = next((q for q in self.questions if q["text"] == q_text), None)
             if question:
                 penalty_questions.append(question)
-                print(f"Added penalty question: {q_text} (attempts: {user.penalty_questions[q_text]})")
+                print(
+                    f"Added penalty question: {q_text} (attempts: {user.penalty_questions[q_text]})"
+                )
 
         selected_questions.extend(penalty_questions[:num_questions])
 
@@ -393,8 +398,8 @@ class QuizHandler:
             "start_time": start_time.isoformat(),
             "subject": {  # Add complete subject info
                 "code": self.subject.code,
-                "name": self.subject.name
-            }
+                "name": self.subject.name,
+            },
         }
 
         print(f"Final quiz has {len(selected_questions)} questions")
@@ -434,11 +439,13 @@ class QuizHandler:
                     if isinstance(path, dict):
                         path = path["content"]
                     if isinstance(path, str):
-                        return path.lstrip('/')
+                        return path.lstrip("/")
                     return path
 
                 submitted_contents = [normalize_path(opt) for opt in submitted]
-                correct_contents = [normalize_path(opt) for opt in question["correct_answers"]]
+                correct_contents = [
+                    normalize_path(opt) for opt in question["correct_answers"]
+                ]
 
                 is_correct = set(submitted_contents) != {"No answer"} and set(
                     submitted_contents
@@ -485,12 +492,13 @@ class QuizHandler:
 
             self.db.refresh(user)
 
-            score = (correct_count / quiz["num_questions"]) * 100
+            score = round((correct_count / quiz["num_questions"]) * 10, 1)
 
             print(f"Final penalty questions: {user.penalty_questions}")
 
             test_history = TestHistory(
                 user=user,
+                subject=self.subject,
                 score=score,
                 time_taken=time_taken,
                 questions={
@@ -512,12 +520,9 @@ class QuizHandler:
                 "total_questions": quiz["num_questions"],
                 "question_results": question_results,
                 "time_taken": time_taken,
-                "subject": {
-                    "code": self.subject.code,
-                    "name": self.subject.name
-                }
+                "subject": {"code": self.subject.code, "name": self.subject.name},
             }
-            logger.info(f"Quiz graded for user {username}. Score: {score}%")
+            logger.info(f"Quiz graded for user {username}. Score: {score}/10")
             return results
         except Exception as e:
             logger.error(f"Error grading quiz for {username}: {e}")

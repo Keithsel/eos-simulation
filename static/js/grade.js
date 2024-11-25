@@ -1,6 +1,6 @@
 
 document.addEventListener('DOMContentLoaded', function () {
-    
+
     document.querySelectorAll('input[name="filter"]').forEach(radio => {
         radio.addEventListener('change', function () {
             const cards = document.querySelectorAll('.card.mb-3');
@@ -16,7 +16,7 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     });
 
-    
+
     document.querySelectorAll('.show-answer').forEach(button => {
         button.addEventListener('click', function () {
             const textElement = this.nextElementSibling;

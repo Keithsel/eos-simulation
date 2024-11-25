@@ -1,0 +1,46 @@
+{% extends "index.html" %}
+
+{% block title %}Test History{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <div class="d-flex justify-content-between align-items-center">
+      <h2>Test History</h2>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
+  </div>
+  <div class="card-body">
+    <div class="table-responsive">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Subject</th>
+            <th>Score</th>
+            <th>Time Taken</th>
+            <th>Date</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for test in tests %}
+          <tr>
+            <td>{{ test.subject.code }} - {{ test.subject.name }}</td>
+            <td>{{ "%.1f"|format(test.score) }}</td>
+            <td>{{ "%.1f"|format(test.time_taken / 60) }} minutes</td>
+            <td>{{ test.completed_at.strftime('%Y-%m-%d %H:%M') }}</td>
+            <td>
+              {% if test.questions %}
+              <a href="{{ url_for('view_result', test_id=test.id) }}" class="btn btn-sm btn-primary">View Results</a>
+              {% else %}
+              <span class="text-muted">Results not available</span>
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

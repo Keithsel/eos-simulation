@@ -1,11 +1,13 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 from utils.quiz_handler import QuizHandler
 import os
 import json
 import secrets
 from datetime import datetime
-from models import Subject, engine
+from models import Subject, TestHistory, engine
 from sqlalchemy.orm import sessionmaker
+from functools import wraps
+from sqlalchemy import func
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -13,42 +15,191 @@ app.secret_key = os.urandom(24)
 quiz_handler = QuizHandler()
 
 
+def login_required(f):
+    @wraps(f)
+    def decorated_function(*args, **kwargs):
+        if "username" not in session:
+            return redirect(url_for("login"))
+        return f(*args, **kwargs)
+
+    return decorated_function
+
+
 @app.route("/")
 def index():
-    with sessionmaker(bind=engine)() as db:
-        subjects = db.query(Subject).all()
+    if "username" in session:
+        return redirect(url_for("dashboard"))
+    return redirect(url_for("login"))
+
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        if not username:
+            return render_template("login.html", error="Username is required")
+
+        session["username"] = username
+        return redirect(url_for("dashboard"))
+    return render_template("login.html")
+
+
+@app.route("/logout")
+def logout():
+    session.clear()
+    return redirect(url_for("login"))
+
+
+@app.route("/dashboard")
+@login_required
+def dashboard():
+    username = session["username"]
+    db = sessionmaker(bind=engine)()
+    user = quiz_handler.get_user_progress(username)
+
+    stats = (
+        db.query(
+            func.count(TestHistory.id).label("tests_taken"),
+            (func.avg(TestHistory.score) / 10).label("avg_score"),
+            func.sum(TestHistory.time_taken).label("total_time"),
+        )
+        .filter(TestHistory.user_id == user.id)
+        .first()
+    )
+
+    active_quiz = None
+    if user.active_quiz:
+        active_quiz = {
+            "subject": user.active_quiz.subject,
+            "start_time": datetime.fromisoformat(
+                user.active_quiz.quiz_data["start_time"].replace("Z", "+00:00")
+            ),
+            "quiz_token": user.active_quiz.quiz_token,
+        }
+
+    return render_template(
+        "dashboard.html", username=username, stats=stats, active_quiz=active_quiz
+    )
+
+
+@app.route("/clear_active_test", methods=["POST"])
+@login_required
+def clear_active_test():
+    username = session["username"]
+    quiz_handler.clear_quiz_state(username)
+    session.pop("quiz_token", None)
+    return redirect(url_for("dashboard"))
+
+
+@app.route("/history")
+@login_required
+def history():
+    username = session["username"]
+    db = sessionmaker(bind=engine)()
+    user = quiz_handler.get_user_progress(username)
+    tests = (
+        db.query(TestHistory)
+        .filter_by(user_id=user.id)
+        .order_by(TestHistory.completed_at.desc())
+        .all()
+    )
+    return render_template("history.html", tests=tests)
+
+
+@app.route("/result/<int:test_id>")
+@login_required
+def view_result(test_id):
+    username = session["username"]
+    db = sessionmaker(bind=engine)()
+    user = quiz_handler.get_user_progress(username)
+    test = db.query(TestHistory).filter_by(id=test_id, user_id=user.id).first()
+
+    if not test:
+        flash("Test result not found", "error")
+        return redirect(url_for("history"))
+
+    try:
+        subject_code = test.subject.code if test.subject else "Unknown"
+        subject_name = test.subject.name if test.subject else "Unknown Subject"
+
+        results = {
+            "score": test.score,
+            "correct_count": len(
+                [r for r in test.questions.get("results", []) if r.get("is_correct")]
+            ),
+            "total_questions": len(test.questions.get("results", []))
+            if test.questions
+            else 0,
+            "time_taken": test.time_taken,
+            "question_results": test.questions.get("results", []),
+            "subject": {"code": subject_code, "name": subject_name},
+            "from_history": True,
+        }
+
+        return render_template("grade.html", results=results)
+    except Exception as e:
+        print(f"Error processing test results: {e}")
+        flash("Error processing test results", "error")
+        return redirect(url_for("history"))
+
+
+@app.route("/result/<result_token>")
+@login_required
+def view_result_by_token(result_token):
+    username = session["username"]
+    results = quiz_handler.get_results(username, result_token)
+
+    if not results:
+        flash("Test result not found or expired", "error")
+        return redirect(url_for("history"))
+
+    return render_template("grade.html", results=results)
+
+
+@app.route("/configure", methods=["GET", "POST"])
+@login_required
+def configure():
+    username = session["username"]
+    user = quiz_handler.get_user_progress(username)
+
+    if user.active_quiz:
+        flash(
+            "Please finish or discard your active test before starting a new one.",
+            "warning",
+        )
+        return redirect(url_for("dashboard"))
+
+    if request.method == "POST":
+        num_questions = int(request.form.get("num_questions", 50))
+        time_limit = int(request.form.get("time_limit", 30))
+        shuffle_options = request.form.get("shuffle_options") == "on"
+        subject_code = request.form.get("subject", "AIL303m")
+
+        quiz_token = secrets.token_urlsafe(32)
+        session["quiz_token"] = quiz_token
+        session["subject"] = subject_code
+
+        subject_quiz_handler = QuizHandler(subject_code)
+        quiz = subject_quiz_handler.initialize_quiz(
+            username, num_questions, shuffle_options
+        )
+        quiz["token"] = quiz_token
+        quiz["time_limit"] = time_limit
+        quiz["subject"] = {
+            "code": subject_quiz_handler.subject.code,
+            "name": subject_quiz_handler.subject.name,
+        }
+        subject_quiz_handler.save_quiz_state(username, quiz_token, quiz)
+
+        return redirect(url_for("exam"))
+
+    db = sessionmaker(bind=engine)()
+    subjects = db.query(Subject).all()
     return render_template("config.html", subjects=subjects)
 
 
-@app.route("/configure", methods=["POST"])
-def configure():
-    username = request.form.get("username", "anonymous")
-    num_questions = int(request.form.get("num_questions", 50))
-    time_limit = int(request.form.get("time_limit", 30))
-    shuffle_options = request.form.get("shuffle_options") == "on"
-    subject_code = request.form.get("subject", "AIL303m")
-
-    quiz_token = secrets.token_urlsafe(32)
-    session["username"] = username
-    session["quiz_token"] = quiz_token
-    session["subject"] = subject_code
-
-    quiz_handler = QuizHandler(subject_code)  
-    quiz = quiz_handler.initialize_quiz(
-        username, num_questions, shuffle_options
-    )  
-    quiz["token"] = quiz_token
-    quiz["time_limit"] = time_limit
-    quiz["subject"] = {  
-        "code": quiz_handler.subject.code,
-        "name": quiz_handler.subject.name,
-    }
-    quiz_handler.save_quiz_state(username, quiz_token, quiz)
-
-    return redirect(url_for("exam"))
-
-
 @app.route("/exam")
+@login_required
 def exam():
     if "quiz_token" not in session:
         return redirect(url_for("index"))
@@ -68,20 +219,17 @@ def exam():
     if not quiz:
         return redirect(url_for("index"))
 
-    
     if "subject" not in quiz:
         quiz["subject"] = {
             "code": quiz_handler.subject.code,
             "name": quiz_handler.subject.name,
         }
 
-    
     if "start_time" not in quiz or not quiz["start_time"]:
         quiz["start_time"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
         quiz_handler.save_quiz_state(username, quiz_token, quiz)
 
-    
-    time_limit = quiz.get("time_limit", 30)  
+    time_limit = quiz.get("time_limit", 30)
 
     return render_template(
         "exam.html",
@@ -93,6 +241,7 @@ def exam():
 
 
 @app.route("/submit", methods=["POST"])
+@login_required
 def submit():
     if "quiz_token" not in session:
         return redirect(url_for("index"))
@@ -117,6 +266,11 @@ def submit():
 
         results = quiz_handler.grade_quiz(username, quiz, formatted_answers)
 
+        results["subject"] = {
+            "code": quiz_handler.subject.code,
+            "name": quiz_handler.subject.name,
+        }
+
         result_token = secrets.token_urlsafe(16)
         quiz_handler.save_results(username, result_token, results)
 
@@ -135,6 +289,7 @@ def submit():
 
 
 @app.route("/grade")
+@login_required
 def grade():
     result_token = session.get("result_token")
     if not result_token:

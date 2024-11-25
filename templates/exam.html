@@ -48,7 +48,7 @@
 
           </div>
 
-          <div class="mt-4 d-flex"> 
+          <div class="mt-4 d-flex">
             <button type="button" class="btn btn-secondary me-2" id="prevBtn" disabled>Back</button>
             <button type="button" class="btn btn-primary" id="nextBtn">Next</button>
           </div>
@@ -82,9 +82,9 @@
 <link rel="stylesheet" href="{{ url_for('static', filename='css/exam.css') }}">
 <script>
   const questionsData = {{ quiz.questions| tojson | safe }};
-  const timeLimit = {{ time_limit|default (30) }} * 60; 
+  const timeLimit = {{ time_limit|default (30) }} * 60;
   const quizToken = '{{ quiz.token }}';
-  const startTime = '{{ quiz.start_time }}';  
+  const startTime = '{{ quiz.start_time }}';
   const subjectName = '{{ quiz.subject }}';
 </script>
 <script src="{{ url_for('static', filename='js/exam.js') }}"></script>

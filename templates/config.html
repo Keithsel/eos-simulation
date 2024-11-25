@@ -5,13 +5,20 @@
 {% block content %}
 <div class="card">
   <div class="card-header">
-    <h2>Quiz Configuration</h2>
+    <div class="d-flex justify-content-between align-items-center">
+      <h2>Quiz Configuration</h2>
+      <a href="{{ url_for('dashboard') }}" class="btn btn-outline-secondary">Back to Dashboard</a>
+    </div>
   </div>
   <div class="card-body">
     <form method="POST" action="{{ url_for('configure') }}">
       <div class="mb-3">
-        <label for="username" class="form-label">Username</label>
-        <input type="text" class="form-control" id="username" name="username" value="anh" required>
+        <label for="subject" class="form-label">Subject</label>
+        <select class="form-control" id="subject" name="subject">
+          {% for subject in subjects %}
+          <option value="{{ subject.code }}">{{ subject.code }} - {{ subject.name }}</option>
+          {% endfor %}
+        </select>
       </div>
       <div class="mb-3">
         <label for="num_questions" class="form-label">Number of Questions</label>
@@ -22,14 +29,6 @@
         <label for="time_limit" class="form-label">Time Limit (minutes)</label>
         <input type="number" class="form-control" id="time_limit" name="time_limit" min="5" max="180" value="30"
           required>
-      </div>
-      <div class="mb-3">
-        <label for="subject" class="form-label">Subject</label>
-        <select class="form-control" id="subject" name="subject">
-          {% for subject in subjects %}
-          <option value="{{ subject.code }}">{{ subject.code }} - {{ subject.name }}</option>
-          {% endfor %}
-        </select>
       </div>
       <div class="mb-3 form-check">
         <input type="checkbox" class="form-check-input" id="shuffle_options" name="shuffle_options">
