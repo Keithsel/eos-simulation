@@ -11,17 +11,25 @@
     <form method="POST" action="{{ url_for('configure') }}">
       <div class="mb-3">
         <label for="username" class="form-label">Username</label>
-        <input type="text" class="form-control" id="username" name="username" required>
+        <input type="text" class="form-control" id="username" name="username" value="anh" required>
       </div>
       <div class="mb-3">
         <label for="num_questions" class="form-label">Number of Questions</label>
-        <input type="number" class="form-control" id="num_questions" name="num_questions" min="1" max="50" value="10"
+        <input type="number" class="form-control" id="num_questions" name="num_questions" min="1" max="50" value="50"
           required>
       </div>
       <div class="mb-3">
         <label for="time_limit" class="form-label">Time Limit (minutes)</label>
         <input type="number" class="form-control" id="time_limit" name="time_limit" min="5" max="180" value="30"
           required>
+      </div>
+      <div class="mb-3">
+        <label for="subject" class="form-label">Subject</label>
+        <select class="form-control" id="subject" name="subject">
+          {% for subject in subjects %}
+          <option value="{{ subject.code }}">{{ subject.code }} - {{ subject.name }}</option>
+          {% endfor %}
+        </select>
       </div>
       <div class="mb-3 form-check">
         <input type="checkbox" class="form-check-input" id="shuffle_options" name="shuffle_options">

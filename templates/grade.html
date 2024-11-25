@@ -5,20 +5,41 @@
 {% block content %}
 <div class="card">
   <div class="card-header">
-    <h2>Quiz Results</h2>
+    <h2>Quiz Results {% if results.subject %}- {{ results.subject.code }}{% endif %}</h2>
+    {% if results.subject %}
+    <p class="text-muted">{{ results.subject.name }}</p>
+    {% endif %}
   </div>
   <div class="card-body">
     <h3>Score: {{ "%.1f"|format(results.score) }}%</h3>
     <p>Correct answers: {{ results.correct_count }} out of {{ results.total_questions }}</p>
+    <p>Time taken: {{ "%.1f"|format(results.time_taken / 60) }} minutes</p>
 
     <h4 class="mt-4">Question Details</h4>
+    <div class="btn-group mb-3" role="group">
+      <input type="radio" class="btn-check" name="filter" id="all" value="all" checked>
+      <label class="btn btn-outline-primary" for="all">All Questions</label>
+
+      <input type="radio" class="btn-check" name="filter" id="correct" value="correct">
+      <label class="btn btn-outline-success" for="correct">Correct Only</label>
+
+      <input type="radio" class="btn-check" name="filter" id="incorrect" value="incorrect">
+      <label class="btn btn-outline-danger" for="incorrect">Incorrect Only</label>
+    </div>
+
     {% for result in results.question_results %}
-    <div class="card mb-3 {% if result.is_correct %}border-success{% else %}border-danger{% endif %}">
+    <div
+      class="card mb-3 {% if result.is_correct %}border-success correct-answer{% else %}border-danger incorrect-answer{% endif %}">
       <div class="card-body">
         <h5>{{ result.question }}</h5>
         <p>Your answer: {{ result.submitted|join(', ') }}</p>
         {% if not result.is_correct %}
         <p class="text-danger">Correct answer: {{ result.correct|join(', ') }}</p>
+        {% else %}
+        <p class="collapse correct-collapse">
+          <button class="btn btn-sm btn-outline-success mb-2 show-answer">Show Correct Answer</button>
+          <span class="correct-text d-none">{{ result.correct|join(', ') }}</span>
+        </p>
         {% endif %}
       </div>
     </div>
@@ -27,4 +48,6 @@
     <a href="{{ url_for('index') }}" class="btn btn-primary">Take Another Quiz</a>
   </div>
 </div>
+
+<script src="{{ url_for('static', filename='js/grade.js') }}"></script>
 {% endblock %}

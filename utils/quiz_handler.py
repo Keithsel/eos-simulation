@@ -2,8 +2,9 @@ import pandas as pd
 import random
 import ast
 import csv
+import os
 from sqlalchemy.orm import sessionmaker
-from models import engine, User, TestHistory, ActiveQuiz, QuizResult
+from models import engine, User, TestHistory, ActiveQuiz, QuizResult, Subject
 from datetime import datetime, timedelta
 import re
 import logging
@@ -14,14 +15,19 @@ logger = logging.getLogger(__name__)
 
 
 class QuizHandler:
-    def __init__(self, quiz_file: str = "data/quiz_data.csv"):
-        self.quiz_file = quiz_file
+    def __init__(self, subject_code: str = "AIL303m"):
+        # Get subject from database
+        self.db = sessionmaker(bind=engine)()
+        self.subject = self.db.query(Subject).filter_by(code=subject_code).first()
+        if not self.subject:
+            raise ValueError(f"Subject {subject_code} not found")
+            
+        self.quiz_file = os.path.join("data", self.subject.data_file)
         try:
             self.questions = self._load_questions()
         except Exception as e:
-            logger.error(f"Failed to load questions: {e}")
+            logger.error(f"Failed to load questions for {subject_code}: {e}")
             self.questions = []
-        self.db = sessionmaker(bind=engine)()
 
     def _is_image_path(self, text):
         return isinstance(text, str) and (
@@ -127,7 +133,8 @@ class QuizHandler:
         try:
             df = pd.read_csv(
                 self.quiz_file,
-                header=None,
+                names=['question', 'choices', 'answer'],  # Define column names explicitly
+                skiprows=1,  # Skip the header row
                 quoting=csv.QUOTE_ALL,
                 escapechar="\\",
                 encoding="utf-8",
@@ -140,11 +147,18 @@ class QuizHandler:
             for index, row in df.iterrows():
                 try:
                     if len(row) < 3:
+                        print(f"Skipping row {index}: Insufficient columns")
                         continue
 
-                    text = str(row.iloc[0]).strip()
-                    options_str = str(row.iloc[1])
-                    correct_answers_str = str(row.iloc[2])
+                    text = str(row['question']).strip()
+                    options_str = str(row['choices'])  
+                    correct_answers_str = str(row['answer'])  # Changed from 'answers' to 'answer' to match CSV
+                    
+                    # Add debug logging
+                    print(f"Reading row {index}:")
+                    print(f"Question: {text}")
+                    print(f"Options string: {options_str}")
+                    print(f"Answers string: {correct_answers_str}")
 
                     options = self._clean_list_string(options_str)
                     correct_answers = self._clean_list_string(correct_answers_str)
@@ -205,11 +219,10 @@ class QuizHandler:
 
     def save_quiz_state(self, username, quiz_token, quiz_data):
         user = self.get_user_progress(username)
-
         active_quiz = user.active_quiz
         if not active_quiz:
-            active_quiz = ActiveQuiz(user=user)
-
+            active_quiz = ActiveQuiz(user=user, subject=self.subject)
+        
         active_quiz.quiz_token = quiz_token
         active_quiz.quiz_data = quiz_data
         self.db.add(active_quiz)
@@ -229,10 +242,11 @@ class QuizHandler:
 
     def save_results(self, username, result_token, results):
         user = self.get_user_progress(username)
-        expires_at = datetime.utcnow() + timedelta(minutes=30)
+        expires_at = datetime.now() + timedelta(minutes=30)
 
         quiz_result = QuizResult(
             user_id=user.id,
+            subject=self.subject,
             result_token=result_token,
             results=results,
             expires_at=expires_at,
@@ -249,7 +263,7 @@ class QuizHandler:
             .first()
         )
 
-        if quiz_result and quiz_result.expires_at > datetime.utcnow():
+        if quiz_result and quiz_result.expires_at > datetime.now():
             return quiz_result.results
         return None
 
@@ -273,18 +287,14 @@ class QuizHandler:
         selected_questions = []
 
         penalty_questions = []
-        for q_text, attempts in user.penalty_questions.items():
-            if attempts < 3:
-                question = next(
-                    (q for q in self.questions if q["text"] == q_text), None
-                )
-                if question:
-                    penalty_questions.append(question)
-                    print(f"Added penalty question: {q_text} (attempts: {attempts})")
+        for q_text in user.penalty_questions:
+            question = next(
+                (q for q in self.questions if q["text"] == q_text), None
+            )
+            if question:
+                penalty_questions.append(question)
+                print(f"Added penalty question: {q_text} (attempts: {user.penalty_questions[q_text]})")
 
-        penalty_questions.sort(
-            key=lambda q: user.penalty_questions[q["text"]], reverse=True
-        )
         selected_questions.extend(penalty_questions[:num_questions])
 
         remaining = num_questions - len(selected_questions)
@@ -332,11 +342,15 @@ class QuizHandler:
                 random.shuffle(combined)
                 question["options"], question["correct_answers"] = zip(*combined)
 
-        start_time = datetime.utcnow()
+        start_time = datetime.now()
         quiz = {
             "questions": selected_questions,
             "num_questions": len(selected_questions),
             "start_time": start_time.isoformat(),
+            "subject": {  # Add complete subject info
+                "code": self.subject.code,
+                "name": self.subject.name
+            }
         }
 
         print(f"Final quiz has {len(selected_questions)} questions")
@@ -345,9 +359,9 @@ class QuizHandler:
     def grade_quiz(self, username: str, quiz: Dict, submitted_answers: Dict) -> Dict:
         try:
             start_time = datetime.fromisoformat(
-                quiz.get("start_time", datetime.utcnow().isoformat())
+                quiz.get("start_time", datetime.now().isoformat())
             )
-            time_taken = (datetime.utcnow() - start_time).total_seconds()
+            time_taken = (datetime.now() - start_time).total_seconds()
 
             correct_count = 0
             question_results = []
@@ -372,14 +386,17 @@ class QuizHandler:
                 elif not submitted:
                     submitted = ["No answer"]
 
-                submitted_contents = [
-                    opt["content"] if isinstance(opt, dict) else opt
-                    for opt in submitted
-                ]
-                correct_contents = [
-                    opt["content"] if isinstance(opt, dict) else opt
-                    for opt in question["correct_answers"]
-                ]
+                # Fix image path comparison by normalizing paths
+                def normalize_path(path):
+                    if isinstance(path, dict):
+                        path = path["content"]
+                    if isinstance(path, str):
+                        # Remove leading '/' if present
+                        return path.lstrip('/')
+                    return path
+
+                submitted_contents = [normalize_path(opt) for opt in submitted]
+                correct_contents = [normalize_path(opt) for opt in question["correct_answers"]]
 
                 is_correct = set(submitted_contents) != {"No answer"} and set(
                     submitted_contents
@@ -400,6 +417,15 @@ class QuizHandler:
                     correct_count += 1
                     if question["text"] in user.question_bag:
                         user.question_bag.remove(question["text"])
+                    if question["text"] in penalties:
+                        penalties[question["text"]] -= 1
+                        if penalties[question["text"]] <= 0:
+                            del penalties[question["text"]]
+                            print(f"Penalty removed for: {question['text']}")
+                        else:
+                            print(
+                                f"Penalty decremented for: {question['text']} -> {penalties[question['text']]}"
+                            )
                 else:
                     if question["text"] in user.question_bag:
                         user.question_bag.remove(question["text"])
@@ -407,7 +433,7 @@ class QuizHandler:
                     current_attempts = penalties.get(question["text"], 0) + 1
                     penalties[question["text"]] = current_attempts
                     print(
-                        f"Adding/updating penalty for: {question['text']} -> {current_attempts}"
+                        f"Penalty incremented for: {question['text']} -> {current_attempts}"
                     )
 
             self.db.commit()
@@ -443,6 +469,11 @@ class QuizHandler:
                 "correct_count": correct_count,
                 "total_questions": quiz["num_questions"],
                 "question_results": question_results,
+                "time_taken": time_taken,
+                "subject": {  # Add subject information
+                    "code": self.subject.code,
+                    "name": self.subject.name
+                }
             }
             logger.info(f"Quiz graded for user {username}. Score: {score}%")
             return results

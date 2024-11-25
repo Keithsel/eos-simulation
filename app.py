@@ -3,6 +3,9 @@ from utils.quiz_handler import QuizHandler
 import os
 import json
 import secrets
+from datetime import datetime
+from models import Subject, engine
+from sqlalchemy.orm import sessionmaker
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -12,23 +15,34 @@ quiz_handler = QuizHandler()
 
 @app.route("/")
 def index():
-    return render_template("config.html")
+    with sessionmaker(bind=engine)() as db:
+        subjects = db.query(Subject).all()
+    return render_template("config.html", subjects=subjects)
 
 
 @app.route("/configure", methods=["POST"])
 def configure():
     username = request.form.get("username", "anonymous")
-    num_questions = int(request.form.get("num_questions", 10))
+    num_questions = int(request.form.get("num_questions", 50))
     time_limit = int(request.form.get("time_limit", 30))
     shuffle_options = request.form.get("shuffle_options") == "on"
+    subject_code = request.form.get("subject", "AIL303m")
 
     quiz_token = secrets.token_urlsafe(32)
     session["username"] = username
     session["quiz_token"] = quiz_token
+    session["subject"] = subject_code
 
-    quiz = quiz_handler.initialize_quiz(username, num_questions, shuffle_options)
+    quiz_handler = QuizHandler(subject_code)  
+    quiz = quiz_handler.initialize_quiz(
+        username, num_questions, shuffle_options
+    )  
     quiz["token"] = quiz_token
     quiz["time_limit"] = time_limit
+    quiz["subject"] = {  
+        "code": quiz_handler.subject.code,
+        "name": quiz_handler.subject.name,
+    }
     quiz_handler.save_quiz_state(username, quiz_token, quiz)
 
     return redirect(url_for("exam"))
@@ -41,6 +55,9 @@ def exam():
 
     username = session.get("username")
     quiz_token = session.get("quiz_token")
+    subject_name = session.get("subject", "AIL303m")
+
+    quiz_handler = QuizHandler(subject_name)
 
     request_token = request.args.get("token")
     if request_token and request_token == quiz_token:
@@ -51,10 +68,25 @@ def exam():
     if not quiz:
         return redirect(url_for("index"))
 
+    
+    if "subject" not in quiz:
+        quiz["subject"] = {
+            "code": quiz_handler.subject.code,
+            "name": quiz_handler.subject.name,
+        }
+
+    
+    if "start_time" not in quiz or not quiz["start_time"]:
+        quiz["start_time"] = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + "Z"
+        quiz_handler.save_quiz_state(username, quiz_token, quiz)
+
+    
+    time_limit = quiz.get("time_limit", 30)  
+
     return render_template(
         "exam.html",
         quiz=quiz,
-        time_limit=quiz.get("time_limit", 30),
+        time_limit=time_limit,
         enumerate=enumerate,
         hide_nav=True,
     )
@@ -74,6 +106,9 @@ def submit():
         }
 
         username = session.get("username")
+        subject_name = session.get("subject", "AIL303m")
+        quiz_handler = QuizHandler(subject_name)
+
         quiz_token = session.get("quiz_token")
         quiz = quiz_handler.get_quiz_state(username, quiz_token)
 
