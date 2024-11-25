@@ -9,14 +9,16 @@ from datetime import datetime, timedelta
 import re
 import logging
 from typing import List, Dict, Any
+from functools import lru_cache
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-
 class QuizHandler:
     def __init__(self, subject_code: str = "AIL303m"):
-        # Get subject from database
+        # Initialize cache first
+        self._options_cache = {}
+        
         self.db = sessionmaker(bind=engine)()
         self.subject = self.db.query(Subject).filter_by(code=subject_code).first()
         if not self.subject:
@@ -29,6 +31,7 @@ class QuizHandler:
             logger.error(f"Failed to load questions for {subject_code}: {e}")
             self.questions = []
 
+    @lru_cache(maxsize=128)
     def _is_image_path(self, text):
         return isinstance(text, str) and (
             text.startswith("static/img/")
@@ -36,45 +39,63 @@ class QuizHandler:
         )
 
     def _parse_options(self, options_str):
-        """
-        Custom parser for options and correct_answers strings from CSV.
-        """
+        """Custom parser for options and correct_answers strings from CSV."""
         try:
-            options_str = options_str.replace("\\n", "\n")
+            if isinstance(options_str, list):
+                return options_str
 
-            options_str = options_str.strip().strip('"').strip("'")
+            cache_key = str(options_str)
+            if cache_key in self._options_cache:
+                return self._options_cache[cache_key]
 
+            options_str = options_str.strip().strip('"\'')
+            
+            try:
+                if options_str.startswith('[') and options_str.endswith(']'):
+                    result = ast.literal_eval(options_str)
+                    self._options_cache[cache_key] = result
+                    return result
+            except Exception as e:
+                logger.debug(f"AST eval failed, falling back to regex: {e}")
+
+            # Fallback to regex parsing
             options = re.findall(r"\[.*?\]|\".*?\"|'.*?'|[^,]+", options_str)
-
-            cleaned_options = []
-            for opt in options:
-                opt = opt.strip().strip('"').strip("'")
-                if opt.startswith("[") and opt.endswith("]"):
-                    opt = opt[1:-1].strip()
-                cleaned_options.append(opt)
+            cleaned_options = [opt.strip().strip('"\'').strip('[]').strip() for opt in options]
+            self._options_cache[cache_key] = cleaned_options
             return cleaned_options
+
         except Exception as e:
-            print(f"Error parsing options: {options_str}, error: {e}")
+            logger.error(f"Error parsing options: {options_str}, error: {e}")
             return []
 
     def _clean_list_string(self, s):
         """Helper method to clean and parse list strings from CSV"""
+        cache_key = str(s)
+        if cache_key in self._options_cache:
+            return self._options_cache[cache_key]
+
         try:
+            if isinstance(s, list):
+                return s
+
             if not s or not isinstance(s, str):
                 return []
 
             s = s.strip()
-
+            
             if not s.startswith("["):
-                return [s.replace("\\n", "\n").strip()]
+                result = [s.replace("\\n", "\n").strip()]
+                self._options_cache[cache_key] = result
+                return result
 
             try:
-                s = s.replace("\\n", "\n")
-                s = s.replace("\r", "")
+                s = s.replace("\\n", "\n").replace("\r", "")
                 s = s.replace("'''", "'").replace('"""', '"')
-
-                return ast.literal_eval(s)
-            except (ValueError, SyntaxError):
+                result = ast.literal_eval(s)
+                self._options_cache[cache_key] = result
+                return result
+            except:
+                # Existing fallback parsing logic
                 items = []
                 current_item = ""
                 in_string = False
@@ -115,13 +136,31 @@ class QuizHandler:
                 return [item for item in items if item]
 
         except Exception as e:
-            print(f"Error cleaning list string: {s}, error: {e}")
-
+            logger.error(f"Error cleaning list string: {s}, error: {e}")
             return [s.replace("\\n", "\n").strip()]
 
     def _load_questions(self) -> List[Dict[str, Any]]:
-        import sys
+        """Load and parse questions from CSV file with improved error handling"""
+        try:
+            # Set CSV field size limit
+            self._set_csv_field_limit()
+            
+            # Load questions using pandas
+            questions = self._load_questions_from_csv()
+            
+            if not questions:
+                logger.error("No valid questions loaded from CSV")
+                return []
+                
+            return questions
 
+        except Exception as e:
+            logger.error(f"Error loading questions: {e}")
+            raise
+
+    def _set_csv_field_limit(self):
+        """Helper method to set CSV field size limit"""
+        import sys
         maxInt = sys.maxsize
         while True:
             try:
@@ -130,11 +169,13 @@ class QuizHandler:
             except OverflowError:
                 maxInt = int(maxInt / 10)
 
+    def _load_questions_from_csv(self) -> List[Dict[str, Any]]:
+        """Helper method to load questions from CSV with better error handling"""
         try:
             df = pd.read_csv(
                 self.quiz_file,
-                names=['question', 'choices', 'answer'],  # Define column names explicitly
-                skiprows=1,  # Skip the header row
+                names=['question', 'choices', 'answer'],
+                skiprows=1,
                 quoting=csv.QUOTE_ALL,
                 escapechar="\\",
                 encoding="utf-8",
@@ -143,71 +184,69 @@ class QuizHandler:
             )
 
             questions = []
-
             for index, row in df.iterrows():
                 try:
-                    if len(row) < 3:
-                        print(f"Skipping row {index}: Insufficient columns")
+                    if not all(field in row for field in ['question', 'choices', 'answer']):
+                        logger.warning(f"Row {index}: Missing required fields")
                         continue
-
-                    text = str(row['question']).strip()
-                    options_str = str(row['choices'])  
-                    correct_answers_str = str(row['answer'])  # Changed from 'answers' to 'answer' to match CSV
-                    
-                    # Add debug logging
-                    print(f"Reading row {index}:")
-                    print(f"Question: {text}")
-                    print(f"Options string: {options_str}")
-                    print(f"Answers string: {correct_answers_str}")
-
-                    options = self._clean_list_string(options_str)
-                    correct_answers = self._clean_list_string(correct_answers_str)
-
-                    if not options or not correct_answers:
-                        print(
-                            f"Skipping row {index}: No valid options or correct answers"
-                        )
-                        continue
-
-                    text = text.replace("\\n", "\n")
-
-                    image_url = None
-                    if "[Image:" in text:
-                        start = text.find("[Image:") + 7
-                        end = text.find("]", start)
-                        image_url = text[start:end].strip()
-                        text = text[: start - 7].strip()
-
-                    formatted_options = []
-                    for opt in options:
-                        if self._is_image_path(opt):
-                            formatted_options.append(
-                                {"type": "image", "content": "/" + opt.strip()}
-                            )
-                        else:
-                            formatted_options.append(
-                                {"type": "text", "content": opt.strip()}
-                            )
-
-                    question = {
-                        "text": text,
-                        "image_url": "/" + image_url if image_url else None,
-                        "options": formatted_options,
-                        "correct_answers": correct_answers,
-                        "option_count": len(options),
-                        "has_image_options": any(
-                            self._is_image_path(opt) for opt in options
-                        ),
-                    }
-                    questions.append(question)
+                        
+                    question = self._parse_question_row(row, index)
+                    if question:
+                        questions.append(question)
                 except Exception as e:
-                    print(f"Error parsing row at index {index}, skipping: {str(e)}")
+                    logger.error(f"Error parsing row {index}: {str(e)}")
                     continue
 
+            if not questions:
+                logger.warning("No questions were successfully loaded")
+                
             return questions
+
         except Exception as e:
-            logger.error(f"Error loading questions from CSV: {e}")
+            logger.error(f"Failed to read CSV file: {str(e)}")
             raise
+
+    def _parse_question_row(self, row: pd.Series, index: int) -> Dict[str, Any]:
+        """Helper method to parse a single question row"""
+        if len(row) < 3:
+            logger.warning(f"Skipping row {index}: Insufficient columns")
+            return None
+
+        text = str(row['question']).strip()
+        options = self._clean_list_string(row['choices'])
+        correct_answers = self._clean_list_string(row['answer'])
+
+        if not options or not correct_answers:
+            logger.warning(f"Skipping row {index}: No valid options or answers")
+            return None
+
+        text = text.replace("\\n", "\n")
+        image_url = self._extract_image_url(text)
+        
+        return {
+            "text": text,
+            "image_url": "/" + image_url if image_url else None,
+            "options": self._format_options(options),
+            "correct_answers": correct_answers,
+            "option_count": len(options),
+            "has_image_options": any(self._is_image_path(opt) for opt in options),
+        }
+
+    def _extract_image_url(self, text: str) -> str:
+        """Helper method to extract image URL from question text"""
+        if "[Image:" in text:
+            start = text.find("[Image:") + 7
+            end = text.find("]", start)
+            return text[start:end].strip()
+        return ""
+
+    def _format_options(self, options: List[str]) -> List[Dict[str, str]]:
+        """Helper method to format question options"""
+        return [
+            {"type": "image", "content": "/" + opt.strip()} if self._is_image_path(opt)
+            else {"type": "text", "content": opt.strip()}
+            for opt in options
+        ]
 
     def get_user_progress(self, username):
         user = self.db.query(User).filter_by(username=username).first()
@@ -215,6 +254,11 @@ class QuizHandler:
             user = User(username=username, question_bag=[], penalty_questions={})
             self.db.add(user)
             self.db.commit()
+            
+        # Only load active_quiz when needed
+        if getattr(user, '_active_quiz', None) is None:
+            _ = user.active_quiz
+            
         return user
 
     def save_quiz_state(self, username, quiz_token, quiz_data):
@@ -386,12 +430,10 @@ class QuizHandler:
                 elif not submitted:
                     submitted = ["No answer"]
 
-                # Fix image path comparison by normalizing paths
                 def normalize_path(path):
                     if isinstance(path, dict):
                         path = path["content"]
                     if isinstance(path, str):
-                        # Remove leading '/' if present
                         return path.lstrip('/')
                     return path
 
@@ -470,7 +512,7 @@ class QuizHandler:
                 "total_questions": quiz["num_questions"],
                 "question_results": question_results,
                 "time_taken": time_taken,
-                "subject": {  # Add subject information
+                "subject": {
                     "code": self.subject.code,
                     "name": self.subject.name
                 }

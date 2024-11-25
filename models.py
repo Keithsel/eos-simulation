@@ -28,8 +28,9 @@ class User(Base):
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
-    tests = relationship("TestHistory", back_populates="user")
-    active_quiz = relationship("ActiveQuiz", back_populates="user", uselist=False)
+    tests = relationship("TestHistory", back_populates="user", lazy="dynamic")
+    active_quiz = relationship("ActiveQuiz", back_populates="user", uselist=False, lazy="select")
+    quiz_results = relationship("QuizResult", back_populates="user", lazy="dynamic")
 
     Index("idx_username", "username")
 
@@ -47,9 +48,9 @@ class Subject(Base):
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
-    tests = relationship("TestHistory", back_populates="subject")
-    active_quizzes = relationship("ActiveQuiz", back_populates="subject")
-    quiz_results = relationship("QuizResult", back_populates="subject")
+    tests = relationship("TestHistory", back_populates="subject", lazy="dynamic")
+    active_quizzes = relationship("ActiveQuiz", back_populates="subject", lazy="dynamic")
+    quiz_results = relationship("QuizResult", back_populates="subject", lazy="dynamic")
 
     Index("idx_subject_code", "code")
 
@@ -65,8 +66,8 @@ class TestHistory(Base):
     completed_at = Column(DateTime, default=datetime.now)
     subject_id = Column(Integer, ForeignKey("subjects.id"))
 
-    user = relationship("User", back_populates="tests")
-    subject = relationship("Subject", back_populates="tests")
+    user = relationship("User", back_populates="tests", lazy="select")
+    subject = relationship("Subject", back_populates="tests", lazy="select")
 
     Index("idx_user_completed", "user_id", "completed_at")
 
@@ -82,8 +83,8 @@ class ActiveQuiz(Base):
     time_limit = Column(Integer, default=30)
     subject_id = Column(Integer, ForeignKey("subjects.id"))
 
-    user = relationship("User", back_populates="active_quiz")
-    subject = relationship("Subject", back_populates="active_quizzes")
+    user = relationship("User", back_populates="active_quiz", lazy="select")
+    subject = relationship("Subject", back_populates="active_quizzes", lazy="select")
 
     Index("idx_quiz_token", "quiz_token")
 
@@ -99,8 +100,8 @@ class QuizResult(Base):
     expires_at = Column(DateTime)
     subject_id = Column(Integer, ForeignKey("subjects.id"))
 
-    user = relationship("User", backref="quiz_results")
-    subject = relationship("Subject", back_populates="quiz_results")
+    user = relationship("User", back_populates="quiz_results", lazy="select")
+    subject = relationship("Subject", back_populates="quiz_results", lazy="select")
 
     Index("idx_result_token", "result_token")
 
