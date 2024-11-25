@@ -1,3 +1,4 @@
+question,choices,answer
 (True/False) Machine Learning is a subset of Artificial Intelligence,"['False', 'True']",['True']
 What is a Turing test?,"['It tests images.', 'It tests and cleans the dataset.', ""It tests a machine's ability to exhibit intelligent behavior."", 'It tests the dataset.']","[""It tests a machine's ability to exhibit intelligent behavior.""]"
 What are some of the different milestones in deep learning history?,"['Deep Blue defeats a world champion chess player, and AlexNet is created.', 'Deep Blue defeats a world champion chess player and TensorFlow is released', 'Geoffrey Hinton’s work, AlexNet, and TensorFlow', 'Deep Blue defeats a world champion chess player, and Keras is released.']","['Geoffrey Hinton’s work, AlexNet, and TensorFlow']"
