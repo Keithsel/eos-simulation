@@ -95,3 +95,29 @@ The application uses an SQLite database (`quiz.db`) stored in the project root. 
 - The app runs in debug mode for development
 - Code changes reflect immediately without restart
 - Database changes require manual reset as described above
+
+### Experimental Features
+
+> ⚠️ **Temporary Feature**: Coursera Quiz Parser
+>
+> I've added an experimental feature that allows parsing quiz data directly from Coursera pages. This is currently in testing and I will make a Firefox (maybe Chrome) extension for easier use. To try it:
+>
+> 1. Install the `watchdog` package:
+>
+> ```bash
+> pip install watchdog
+> ```
+>
+> 2. Run the watcher script:
+>
+> ```bash
+> python watch_and_move.py
+> ```
+>
+> 3. Open the Coursera quiz page in your browser, suppose that you have completed the quiz. Press "View submission" and wait for the view submission page to load.
+>
+> 4. Press F12 or Ctrl+Shift+I to open the developer console. Copy the code in `parse_qna_coursera.js` and paste it into the console.
+>
+> 5. Press Enter. The console will download a JSON file of the quiz data to the downloads folder defined by the browser, and the watcher script will move the file to the folder you specified in the watcher script.
+>
+> Why the watcher script? Browser console can't access the local filesystem, so the script is a workaround to move the downloaded file to the app's folder.
