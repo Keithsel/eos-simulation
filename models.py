@@ -125,6 +125,6 @@ def init_default_subjects(engine):
             session.commit()
 
 
-Base.metadata.drop_all(engine)
+# Base.metadata.drop_all(engine) # Uncomment to drop all tables before creating new ones to avoid conflicts
 Base.metadata.create_all(engine)
 init_default_subjects(engine)
