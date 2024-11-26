@@ -30,7 +30,8 @@
 
         // Extract options and the correct answer
         const options = [];
-        let correctAnswer = null;
+        let correctAnswer = []; // Initialize as an array
+
         const labels = block.querySelectorAll("label");
         labels.forEach(label => {
             // Extract option text and image
@@ -42,10 +43,10 @@
             const finalOptionText = optionText.trim() === '' ? optionImageUrl : optionText;
             options.push(finalOptionText);
 
-            // Check if this option is marked as correct
-            const input = label.querySelector("input[type='radio']");
+            // Select both radio and checkbox inputs
+            const input = label.querySelector("input[type='radio'], input[type='checkbox']");
             if (input && input.checked) {
-                correctAnswer = finalOptionText;
+                correctAnswer.push(finalOptionText); // Collect all checked options
             }
         });
 
@@ -54,7 +55,7 @@
             quizData.push({
                 question: questionImageUrl ? `${questionText} [Image: ${questionImageUrl}]` : questionText,
                 options: options,
-                correct_answer: correctAnswer ? [correctAnswer] : []
+                correct_answer: correctAnswer // Use the array directly
             });
         }
     });
