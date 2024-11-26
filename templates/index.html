@@ -18,13 +18,15 @@
   </nav>
   {% endif %}
 
-  <div class="container{% if hide_nav %} p-0{% endif %} mt-4">
-    {% block content %}{% endblock %}
+  <div class="content-wrapper">
+    <div class="container{% if hide_nav %} p-0{% endif %} mt-4">
+      {% block content %}{% endblock %}
+    </div>
   </div>
 
   {% if not hide_footer %}
   <footer class="text-center mt-4">
-    <p>Created by Nhữ Quang Anh from FPT University Quy Nhơn AI Campus</p>
+    <p class="mb-0">Created by Nhữ Quang Anh from FPT University Quy Nhơn AI Campus</p>
   </footer>
   {% endif %}
 

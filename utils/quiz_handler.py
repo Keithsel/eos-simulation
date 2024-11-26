@@ -333,57 +333,28 @@ class QuizHandler:
             user.penalty_questions = {}
             self.db.commit()
 
-        selected_questions = []
-
-        penalty_questions = []
+        available_questions = []
+        
         for q_text in user.penalty_questions:
             question = next((q for q in self.questions if q["text"] == q_text), None)
             if question:
-                penalty_questions.append(question)
-                print(
-                    f"Added penalty question: {q_text} (attempts: {user.penalty_questions[q_text]})"
-                )
+                available_questions.append(question)
+                print(f"Added penalty question: {q_text} (attempts: {user.penalty_questions[q_text]})")
 
-        selected_questions.extend(penalty_questions[:num_questions])
+        if not user.question_bag:
+            user.question_bag = [q["text"] for q in self.questions if q["text"] not in user.penalty_questions]
+            self.db.commit()
 
-        remaining = num_questions - len(selected_questions)
-        print(f"After penalties, need {remaining} more questions")
+        bag_questions = [q for q in self.questions if q["text"] in user.question_bag 
+                        and q["text"] not in user.penalty_questions]
+        available_questions.extend(bag_questions)
 
-        if remaining > 0:
-            if not user.question_bag:
-                user.question_bag = [
-                    q["text"]
-                    for q in self.questions
-                    if q["text"] not in user.penalty_questions
-                ]
-                self.db.commit()
+        remaining_questions = [q for q in self.questions if q not in available_questions 
+                             and q["text"] not in user.penalty_questions]
+        available_questions.extend(remaining_questions)
 
-            bag_questions = [
-                q
-                for q in self.questions
-                if q["text"] in user.question_bag and q not in selected_questions
-            ]
-
-            if bag_questions:
-                sampled = random.sample(
-                    bag_questions, min(remaining, len(bag_questions))
-                )
-                selected_questions.extend(sampled)
-                print(f"Added {len(sampled)} questions from bag")
-
-        remaining = num_questions - len(selected_questions)
-        if remaining > 0:
-            available = [
-                q
-                for q in self.questions
-                if q not in selected_questions
-                and q["text"] not in user.penalty_questions
-            ]
-            sampled = random.sample(available, min(remaining, len(available)))
-            selected_questions.extend(sampled)
-            print(f"Added {len(sampled)} random questions")
-
-        selected_questions = selected_questions[:num_questions]
+        random.shuffle(available_questions)
+        selected_questions = available_questions[:num_questions]
 
         if shuffle_options:
             for question in selected_questions:
@@ -396,7 +367,7 @@ class QuizHandler:
             "questions": selected_questions,
             "num_questions": len(selected_questions),
             "start_time": start_time.isoformat(),
-            "subject": {  # Add complete subject info
+            "subject": {
                 "code": self.subject.code,
                 "name": self.subject.name,
             },
