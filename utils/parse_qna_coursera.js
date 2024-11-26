@@ -46,7 +46,7 @@
             // Select both radio and checkbox inputs
             const input = label.querySelector("input[type='radio'], input[type='checkbox']");
             if (input && input.checked) {
-                correctAnswer.push(finalOptionText); // Collect all checked options
+                correctAnswer.push(finalOptionText);
             }
         });
 
