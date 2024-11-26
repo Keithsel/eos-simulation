@@ -1,10 +1,15 @@
-# eos-simulation
+# EOS Simulation Platform
 
 ![image](https://github.com/user-attachments/assets/68925b1a-fd88-4f2d-9745-d56fd12b468b)
 
-## Description
+## Why Use This Platform?
 
-As FPT students take the final exam on EOS, we don't have any tool to practice before the exam, while replicating the exam environment has always been proven to be the best way to prepare for the exam. This project aims to provide a platform for students to practice for the EOS exam by taking mock quizzes in a simulated exam environment.
+As FPT students, preparing for the EOS final exam can be challenging without proper practice tools. This platform provides:
+
+- A realistic exam environment simulation
+- Practice opportunities before the real exam
+- Progress tracking through quiz history
+- Immediate feedback on performance
 
 ## Features
 
@@ -13,57 +18,80 @@ As FPT students take the final exam on EOS, we don't have any tool to practice b
 - View the result of the quizzes
 - View the history of the quizzes taken
 
-## Tech stack
+## How Questions Are Managed
 
-- Frontend: Jinja2, HTML, CSS, JavaScript
-- Backend: Flask
-- Database: SQLite
+- The app shuffles the questions every time the user starts a new quiz.
+- The app will not repeat questions that the user has already answered in the current quiz until the user has answered all the questions in the database.
+- For questions answered incorrectly in previous quizzes, the app adds a "penalty" to the question, increasing the likelihood that the user will see these questions more often in subsequent quizzes.
 
-## Setup
+## Setup Guide
 
-1. Create and activate virtual environment (optional, but recommended)
+### Prerequisites
 
-- If you are using `venv`:
+- Python 3.8 or higher
+- Git (for cloning the repository)
+
+### Quick Start
+
+1. Get the code and setup environment:
 
 ```bash
+git clone https://github.com/Keithsel/eos-simulation.git && cd eos-simulation
+```
+
+2. Set up Python environment: (optional, but recommended)
+
+- Choose ONE of these options:
+
+```bash
+# Option A: Using venv (recommended for most users)
 python3 -m venv venv
 source venv/bin/activate
-```
 
-- If you are using `virtualenv` (install it via `pip install virtualenv`):
-
-```bash
+# Option B: Using virtualenv
+pip install virtualenv
 virtualenv venv
 source venv/bin/activate
-```
 
-- If you are using `conda`:
-
-```bash
+# Option C: Using conda
 conda create --name venv
 conda activate venv
 ```
 
-2. Install dependencies
+3. Install dependencies
 
-```bash
-pip install -r requirements.txt
-```
+  ```bash
+  pip install -r requirements.txt
+  ```
 
-3. Run the app
+4. Run the app
 
-```bash
-python app.py
-```
+  ```bash
+  python app.py
+  ```
 
-4. Open your browser and go to `http://127.0.0.1:5000/`, you should see the app running
+5. Access the platform
 
-### Note
+- Open your browser
+- Visit `http://127.0.0.1:5000/`
+- You should see the login page
 
-- The app is running in debug mode, so you can see the changes immediately after you save the file
-- The database is created in the root directory of the project, named `quiz.db`. To purge the database, simply delete this file, or uncomment line 128 in the `models.py` file:
-  
+### Database Management
+
+The application uses an SQLite database (`quiz.db`) stored in the project root. To reset it:
+
+- Either delete the `quiz.db` file
+- Or uncomment this line in `models.py`:
+
   ```python
   #Base.metadata.drop_all(engine)
   ```
-  Run the app once, then comment this line again to prevent the database from being purged every time you run the app.
+
+- Start the app once
+- Re-comment the line to prevent accidental resets
+
+### Development Notes
+
+- The app runs in debug mode for development
+- Code changes reflect immediately without restart
+- Database changes require manual reset as described above
