@@ -1,8 +1,9 @@
 # eos-simulation
+![image](https://github.com/user-attachments/assets/68925b1a-fd88-4f2d-9745-d56fd12b468b)
 
 ## Description
 
-As an FPT student taking exam on EOS, we don't have any tool to practice before the exam, while replicating the exam environment has always been proven to be the best way to prepare for the exam. This project aims to provide a platform for students to practice for the EOS exam by taking mock quizzes in a simulated exam environment.
+As FPT students take the final exam on EOS, we don't have any tool to practice before the exam, while replicating the exam environment has always been proven to be the best way to prepare for the exam. This project aims to provide a platform for students to practice for the EOS exam by taking mock quizzes in a simulated exam environment.
 
 ## Features
 
