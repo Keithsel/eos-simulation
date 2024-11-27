@@ -4,7 +4,7 @@ import ast
 import csv
 import os
 from sqlalchemy.orm import sessionmaker
-from models import engine, User, TestHistory, ActiveQuiz, QuizResult, Subject
+from utils.models import engine, User, TestHistory, ActiveQuiz, QuizResult, Subject
 from datetime import datetime, timedelta
 import re
 import logging
@@ -24,7 +24,7 @@ class QuizHandler:
         if not self.subject:
             raise ValueError(f"Subject {subject_code} not found")
 
-        self.quiz_file = os.path.join("data", self.subject.data_file)
+        self.quiz_file = os.path.join("data", "bank", self.subject.data_file)
         try:
             self.questions = self._load_questions()
         except Exception as e:
@@ -96,7 +96,8 @@ class QuizHandler:
                 result = ast.literal_eval(s)
                 self._options_cache[cache_key] = result
                 return result
-            except:
+            except Exception as e:
+                logger.debug(f"AST eval failed, falling back to custom parser: {e}")
                 items = []
                 current_item = ""
                 in_string = False
@@ -327,30 +328,41 @@ class QuizHandler:
         user = self.get_user_progress(username)
 
         print(f"Initializing quiz with {num_questions} questions")
-        print(f"Current penalty questions: {user.penalty_questions}")
+        # print(f"Current penalty questions: {user.penalty_questions}")
 
         if not isinstance(user.penalty_questions, dict):
             user.penalty_questions = {}
             self.db.commit()
 
         available_questions = []
-        
+
         for q_text in user.penalty_questions:
             question = next((q for q in self.questions if q["text"] == q_text), None)
             if question:
                 available_questions.append(question)
-                print(f"Added penalty question: {q_text} (attempts: {user.penalty_questions[q_text]})")
+                # print(f"Added penalty question: {q_text} (attempts: {user.penalty_questions[q_text]})")
 
         if not user.question_bag:
-            user.question_bag = [q["text"] for q in self.questions if q["text"] not in user.penalty_questions]
+            user.question_bag = [
+                q["text"]
+                for q in self.questions
+                if q["text"] not in user.penalty_questions
+            ]
             self.db.commit()
 
-        bag_questions = [q for q in self.questions if q["text"] in user.question_bag 
-                        and q["text"] not in user.penalty_questions]
+        bag_questions = [
+            q
+            for q in self.questions
+            if q["text"] in user.question_bag
+            and q["text"] not in user.penalty_questions
+        ]
         available_questions.extend(bag_questions)
 
-        remaining_questions = [q for q in self.questions if q not in available_questions 
-                             and q["text"] not in user.penalty_questions]
+        remaining_questions = [
+            q
+            for q in self.questions
+            if q not in available_questions and q["text"] not in user.penalty_questions
+        ]
         available_questions.extend(remaining_questions)
 
         random.shuffle(available_questions)
@@ -390,9 +402,9 @@ class QuizHandler:
             if not isinstance(user.penalty_questions, dict):
                 user.penalty_questions = {}
 
-            print(
-                f"Initial state - Penalty questions: {user.penalty_questions}, Question bag: {user.question_bag}"
-            )
+            # print(
+            #     f"Initial state - Penalty questions: {user.penalty_questions}, Question bag: {user.question_bag}"
+            # )
 
             user = self.db.merge(self.get_user_progress(username))
             penalties = dict(user.penalty_questions or {})
@@ -441,20 +453,21 @@ class QuizHandler:
                         penalties[question["text"]] -= 1
                         if penalties[question["text"]] <= 0:
                             del penalties[question["text"]]
-                            print(f"Penalty removed for: {question['text']}")
+                            # print(f"Penalty removed for: {question['text']}")
                         else:
-                            print(
-                                f"Penalty decremented for: {question['text']} -> {penalties[question['text']]}"
-                            )
+                            pass
+                            # print(
+                            #     f"Penalty decremented for: {question['text']} -> {penalties[question['text']]}"
+                            # )
                 else:
                     if question["text"] in user.question_bag:
                         user.question_bag.remove(question["text"])
 
                     current_attempts = penalties.get(question["text"], 0) + 1
                     penalties[question["text"]] = current_attempts
-                    print(
-                        f"Penalty incremented for: {question['text']} -> {current_attempts}"
-                    )
+                    # print(
+                    #     f"Penalty incremented for: {question['text']} -> {current_attempts}"
+                    # )
 
             self.db.commit()
 
@@ -465,7 +478,7 @@ class QuizHandler:
 
             score = round((correct_count / quiz["num_questions"]) * 10, 1)
 
-            print(f"Final penalty questions: {user.penalty_questions}")
+            # print(f"Final penalty questions: {user.penalty_questions}")
 
             test_history = TestHistory(
                 user=user,

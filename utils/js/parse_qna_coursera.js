@@ -76,7 +76,7 @@
         if (questionText && options.length > 0) {
             quizData.push({
                 question: questionImageUrl ? `${questionText} [Image: ${questionImageUrl}]` : questionText,
-                options: options,
+                choices: options,
                 correct_answer: correctAnswer
             });
         }

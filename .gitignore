@@ -163,3 +163,4 @@ cython_debug/
 
 quiz.db
 proc/
+archive/

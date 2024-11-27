@@ -1,0 +1,825 @@
+{
+  "metadata": {
+    "code": "BIT_AI_K18B-18C",
+    "name": {
+      "vi": "NHU QUANG ANH",
+      "en": "Bachelor Program of Information Technology, Artificial Intelligence"
+    },
+    "totals": {
+      "totalSubjects": 47,
+      "totalCredits": 145
+    }
+  },
+  "subjects": [
+    {
+      "code": "OTP101",
+      "name": {
+        "full": "Orientation and General Training Program_Định hướng và Rèn luyện tập trung",
+        "en": "Orientation and General Training Program",
+        "vi": "Định hướng và Rèn luyện tập trung"
+      },
+      "credits": 0,
+      "semester": 0,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": "None"
+      }
+    },
+    {
+      "code": "PEN",
+      "name": {
+        "full": "Preparation English_Tiếng Anh chuẩn bị",
+        "en": "Preparation English",
+        "vi": "Tiếng Anh chuẩn bị"
+      },
+      "credits": 0,
+      "semester": 0,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "PHE_COM*1",
+      "name": {
+        "full": "Physical Education 1_Giáo dục thể chất 1",
+        "en": "Physical Education 1",
+        "vi": "Giáo dục thể chất 1"
+      },
+      "credits": 2,
+      "semester": 0,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "TMI_ELE",
+      "name": {
+        "full": "Traditional musical instrument_Nhạc cụ truyền thống",
+        "en": "Traditional musical instrument",
+        "vi": "Nhạc cụ truyền thống"
+      },
+      "credits": 3,
+      "semester": 0,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "CSI105",
+      "name": {
+        "full": "Introduction to Computer Science_Nhập môn khoa học máy tính",
+        "en": "Introduction to Computer Science",
+        "vi": "Nhập môn khoa học máy tính"
+      },
+      "credits": 3,
+      "semester": 1,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "MAD101",
+      "name": {
+        "full": "Discrete mathematics_Toán rời rạc",
+        "en": "Discrete mathematics",
+        "vi": "Toán rời rạc"
+      },
+      "credits": 3,
+      "semester": 1,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": "None"
+      }
+    },
+    {
+      "code": "MAE101",
+      "name": {
+        "full": "Mathematics for Engineering_Toán cho ngành kỹ thuật",
+        "en": "Mathematics for Engineering",
+        "vi": "Toán cho ngành kỹ thuật"
+      },
+      "credits": 3,
+      "semester": 1,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": "None"
+      }
+    },
+    {
+      "code": "PFP191",
+      "name": {
+        "full": "Programming Fundamentals with Python_Cơ sở lập trình với Python",
+        "en": "Programming Fundamentals with Python",
+        "vi": "Cơ sở lập trình với Python"
+      },
+      "credits": 3,
+      "semester": 1,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "PHE_COM*2",
+      "name": {
+        "full": "Physical Education 2_Giáo dục thể chất 2",
+        "en": "Physical Education 2",
+        "vi": "Giáo dục thể chất 2"
+      },
+      "credits": 2,
+      "semester": 1,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "SSL101c",
+      "name": {
+        "full": "Academic Skills for University Success_Kỹ năng học tập đại học",
+        "en": "Academic Skills for University Success",
+        "vi": "Kỹ năng học tập đại học"
+      },
+      "credits": 3,
+      "semester": 1,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": "None"
+      }
+    },
+    {
+      "code": "AIG201c",
+      "name": {
+        "full": "Artificial Intelligence_Trí tuệ nhân tạo",
+        "en": "Artificial Intelligence",
+        "vi": "Trí tuệ nhân tạo"
+      },
+      "credits": 3,
+      "semester": 2,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "CEA201",
+      "name": {
+        "full": "Computer Organization and Architecture_Tổ chức và Kiến trúc máy tính",
+        "en": "Computer Organization and Architecture",
+        "vi": "Tổ chức và Kiến trúc máy tính"
+      },
+      "credits": 3,
+      "semester": 2,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "CSD203",
+      "name": {
+        "full": "Data Structures and Algorithm with Python_Cấu trúc dữ liệu và giải thuật với Python",
+        "en": "Data Structures and Algorithm with Python",
+        "vi": "Cấu trúc dữ liệu và giải thuật với Python"
+      },
+      "credits": 3,
+      "semester": 2,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "PFP191 (Programming Fundamentals with Python_Cơ sở lập trình với Python)"
+        },
+        "raw": "PFP191 (Programming Fundamentals with Python_Cơ sở lập trình với Python)"
+      }
+    },
+    {
+      "code": "DBI202",
+      "name": {
+        "full": "Introduction to Databases_Các hệ cơ sở dữ liệu",
+        "en": "Introduction to Databases",
+        "vi": "Các hệ cơ sở dữ liệu"
+      },
+      "credits": 3,
+      "semester": 2,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "PHE_COM*3",
+      "name": {
+        "full": "Physical Education 3_Giáo dục thể chất 3",
+        "en": "Physical Education 3",
+        "vi": "Giáo dục thể chất 3"
+      },
+      "credits": 2,
+      "semester": 2,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "SSG104",
+      "name": {
+        "full": "Communication and In-Group Working Skills_Kỹ năng giao tiếp và cộng tác",
+        "en": "Communication and In-Group Working Skills",
+        "vi": "Kỹ năng giao tiếp và cộng tác"
+      },
+      "credits": 3,
+      "semester": 2,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": "None"
+      }
+    },
+    {
+      "code": "ADY201m",
+      "name": {
+        "full": "AI, DS with Python & SQL_TTNT và KHDL với Python và SQL",
+        "en": "AI, DS with Python & SQL",
+        "vi": "TTNT và KHDL với Python và SQL"
+      },
+      "credits": 3,
+      "semester": 3,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "PFP191, DBI202"
+        },
+        "raw": "PFP191, DBI202"
+      }
+    },
+    {
+      "code": "ITE303c",
+      "name": {
+        "full": "Ethics in IT_Đạo đức trong CNTT",
+        "en": "Ethics in IT",
+        "vi": "Đạo đức trong CNTT"
+      },
+      "credits": 3,
+      "semester": 3,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "JPD113",
+      "name": {
+        "full": "Elementary Japanese 1- A1.1_Tiếng Nhật sơ cấp 1-A1.1",
+        "en": "Elementary Japanese 1- A1.1",
+        "vi": "Tiếng Nhật sơ cấp 1-A1.1"
+      },
+      "credits": 3,
+      "semester": 3,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": "Không"
+      }
+    },
+    {
+      "code": "MAI391",
+      "name": {
+        "full": "Mathematics for Machine Learning_Toán cho học máy",
+        "en": "Mathematics for Machine Learning",
+        "vi": "Toán cho học máy"
+      },
+      "credits": 3,
+      "semester": 3,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "MAE101"
+        },
+        "raw": "MAE101"
+      }
+    },
+    {
+      "code": "MAS291",
+      "name": {
+        "full": "Statistics & Probability_Xác suất thống kê",
+        "en": "Statistics & Probability",
+        "vi": "Xác suất thống kê"
+      },
+      "credits": 3,
+      "semester": 3,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "OR",
+          "requirements": [
+            {
+              "operator": "SINGLE",
+              "code": "MAE101"
+            },
+            {
+              "operator": "SINGLE",
+              "code": "MAC101"
+            }
+          ]
+        },
+        "raw": "MAE101 or MAC101"
+      }
+    },
+    {
+      "code": "AIL303m",
+      "name": {
+        "full": "Machine Learning_Học máy",
+        "en": "Machine Learning",
+        "vi": "Học máy"
+      },
+      "credits": 3,
+      "semester": 4,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "MAS291, MAI391, PFP191"
+        },
+        "raw": "MAS291, MAI391, PFP191"
+      }
+    },
+    {
+      "code": "CPV301",
+      "name": {
+        "full": "Computer Vision_Thị giác máy tính",
+        "en": "Computer Vision",
+        "vi": "Thị giác máy tính"
+      },
+      "credits": 3,
+      "semester": 4,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "PFP191, CSD203"
+        },
+        "raw": "PFP191, CSD203"
+      }
+    },
+    {
+      "code": "DAP391m",
+      "name": {
+        "full": "AI-DS Project_Dự án TTNT-KHDL",
+        "en": "AI-DS Project",
+        "vi": "Dự án TTNT-KHDL"
+      },
+      "credits": 3,
+      "semester": 4,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "PFP191, ADY201m"
+        },
+        "raw": "PFP191, ADY201m"
+      }
+    },
+    {
+      "code": "JPD123",
+      "name": {
+        "full": "Elementary Japanese 1-A1.2_Tiếng Nhật sơ cấp 1-A1.2",
+        "en": "Elementary Japanese 1-A1.2",
+        "vi": "Tiếng Nhật sơ cấp 1-A1.2"
+      },
+      "credits": 3,
+      "semester": 4,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "JPD113"
+        },
+        "raw": "JPD113"
+      }
+    },
+    {
+      "code": "SWE201c",
+      "name": {
+        "full": "Introduction to Software Engineering_Nhập môn kĩ thuật phần mềm",
+        "en": "Introduction to Software Engineering",
+        "vi": "Nhập môn kĩ thuật phần mềm"
+      },
+      "credits": 3,
+      "semester": 4,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "AND",
+          "requirements": [
+            {
+              "operator": "SINGLE",
+              "code": "PRO192 (not applied to the BIT_AI17"
+            },
+            {
+              "operator": "SINGLE",
+              "code": "BA programs)"
+            }
+          ]
+        },
+        "raw": "PRO192 (not applied to the BIT_AI17 and BA programs)"
+      }
+    },
+    {
+      "code": "AI17_COM*1",
+      "name": {
+        "full": "Subject 1 of Combo*_Học phần 1 của combo*",
+        "en": "Subject 1 of Combo*",
+        "vi": "Học phần 1 của combo*"
+      },
+      "credits": 3,
+      "semester": 5,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "AI17_COM*2",
+      "name": {
+        "full": "Subject 2 of Combo*_Học phần 2 của combo*",
+        "en": "Subject 2 of Combo*",
+        "vi": "Học phần 2 của combo*"
+      },
+      "credits": 3,
+      "semester": 5,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "DPL302m",
+      "name": {
+        "full": "Deep Learning_Học sâu",
+        "en": "Deep Learning",
+        "vi": "Học sâu"
+      },
+      "credits": 6,
+      "semester": 5,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "AIL303m"
+        },
+        "raw": "AIL303m"
+      }
+    },
+    {
+      "code": "DWP301c",
+      "name": {
+        "full": "Web Development with Python_Phát triển Web với Python",
+        "en": "Web Development with Python",
+        "vi": "Phát triển Web với Python"
+      },
+      "credits": 3,
+      "semester": 5,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "PFP191"
+        },
+        "raw": "PFP191"
+      }
+    },
+    {
+      "code": "NLP301c",
+      "name": {
+        "full": "Natural Language Processing_Xử lý ngôn ngữ tự nhiên",
+        "en": "Natural Language Processing",
+        "vi": "Xử lý ngôn ngữ tự nhiên"
+      },
+      "credits": 3,
+      "semester": 6,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "AND",
+          "requirements": [
+            {
+              "operator": "SINGLE",
+              "code": "AIL30x"
+            },
+            {
+              "operator": "OR",
+              "requirements": [
+                {
+                  "operator": "SINGLE",
+                  "code": "PRP201c"
+                },
+                {
+                  "operator": "SINGLE",
+                  "code": "PFP191"
+                }
+              ]
+            }
+          ]
+        },
+        "raw": "AIL30x and (PRP201c or PFP191)"
+      }
+    },
+    {
+      "code": "OJT202",
+      "name": {
+        "full": "On-The-Job Training_Đào tạo trong môi trường thực tế",
+        "en": "On-The-Job Training",
+        "vi": "Đào tạo trong môi trường thực tế"
+      },
+      "credits": 10,
+      "semester": 6,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "AND",
+          "requirements": [
+            {
+              "operator": "SINGLE",
+              "code": "Students attain 90% of the total credits from term 1-term 5 (excluding Physical Education"
+            },
+            {
+              "operator": "SINGLE",
+              "code": "OTP Programs)\nStudents choosing JS combo (Japanese Bridge Engineer) have to pass JPD123"
+            }
+          ]
+        },
+        "raw": "Students attain 90% of the total credits from term 1-term 5 (excluding Physical Education and OTP Programs)\nStudents choosing JS combo (Japanese Bridge Engineer) have to pass JPD123"
+      }
+    },
+    {
+      "code": "AI17_COM*3",
+      "name": {
+        "full": "Subject 3 of Combo*_Học phần 3 của combo*",
+        "en": "Subject 3 of Combo*",
+        "vi": "Học phần 3 của combo*"
+      },
+      "credits": 3,
+      "semester": 7,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "DAT301m",
+      "name": {
+        "full": "AI Development with TensorFlow_Phát triển UDTTNT với TensorFlow",
+        "en": "AI Development with TensorFlow",
+        "vi": "Phát triển UDTTNT với TensorFlow"
+      },
+      "credits": 3,
+      "semester": 7,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "CPV301, DPL302m"
+        },
+        "raw": "CPV301, DPL302m"
+      }
+    },
+    {
+      "code": "ENW493c",
+      "name": {
+        "full": "Research Methods & Academic Writing Skills_Phương pháp nghiên cứu & Kỹ năng viết học thuật",
+        "en": "Research Methods & Academic Writing Skills",
+        "vi": "Phương pháp nghiên cứu & Kỹ năng viết học thuật"
+      },
+      "credits": 3,
+      "semester": 7,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "EXE101",
+      "name": {
+        "full": "Experiential Entrepreneurship 1_Trải nghiệm khởi nghiệp 1",
+        "en": "Experiential Entrepreneurship 1",
+        "vi": "Trải nghiệm khởi nghiệp 1"
+      },
+      "credits": 3,
+      "semester": 7,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": "None"
+      }
+    },
+    {
+      "code": "PMG201c",
+      "name": {
+        "full": "Project Management",
+        "vi": "Project Management",
+        "en": null
+      },
+      "credits": 3,
+      "semester": 7,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": "None"
+      }
+    },
+    {
+      "code": "AI17_COM*4",
+      "name": {
+        "full": "Subject 4 of Combo*_Học phần 4 của combo*",
+        "en": "Subject 4 of Combo*",
+        "vi": "Học phần 4 của combo*"
+      },
+      "credits": 3,
+      "semester": 8,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "AID301c",
+      "name": {
+        "full": "AI in Production_Thiết kế sản phẩm TTNT",
+        "en": "AI in Production",
+        "vi": "Thiết kế sản phẩm TTNT"
+      },
+      "credits": 3,
+      "semester": 8,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "SWE201c, AIL303m"
+        },
+        "raw": "SWE201c, AIL303m"
+      }
+    },
+    {
+      "code": "EXE201",
+      "name": {
+        "full": "Experiential Entrepreneurship 2_Trải nghiệm khởi nghiệp 2",
+        "en": "Experiential Entrepreneurship 2",
+        "vi": "Trải nghiệm khởi nghiệp 2"
+      },
+      "credits": 3,
+      "semester": 8,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "EXE101"
+        },
+        "raw": "EXE101"
+      }
+    },
+    {
+      "code": "MLN111",
+      "name": {
+        "full": "Philosophy of Marxism – Leninism_Triết học Mác - Lê-nin",
+        "en": "Philosophy of Marxism – Leninism",
+        "vi": "Triết học Mác - Lê-nin"
+      },
+      "credits": 3,
+      "semester": 8,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": "None"
+      }
+    },
+    {
+      "code": "MLN122",
+      "name": {
+        "full": "Political economics of Marxism – Leninism_Kinh tế chính trị Mác - Lê-nin",
+        "en": "Political economics of Marxism – Leninism",
+        "vi": "Kinh tế chính trị Mác - Lê-nin"
+      },
+      "credits": 2,
+      "semester": 8,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": "None"
+      }
+    },
+    {
+      "code": "REL301m",
+      "name": {
+        "full": "Reinforcement Learning_Học tăng cường",
+        "en": "Reinforcement Learning",
+        "vi": "Học tăng cường"
+      },
+      "credits": 3,
+      "semester": 8,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "AIL303m, DPL302m"
+        },
+        "raw": "AIL303m, DPL302m"
+      }
+    },
+    {
+      "code": "AI17_GRA_ELE",
+      "name": {
+        "full": "Học phần lựa chọn Đồ án tốt nghiệp chuyên ngành Trí Tuệ Nhân Tạo",
+        "vi": "Học phần lựa chọn Đồ án tốt nghiệp chuyên ngành Trí Tuệ Nhân Tạo",
+        "en": null
+      },
+      "credits": 10,
+      "semester": 9,
+      "prerequisites": {
+        "required": false,
+        "logic": null,
+        "raw": null
+      }
+    },
+    {
+      "code": "HCM202",
+      "name": {
+        "full": "HCM Ideology_Tư tưởng Hồ Chí Minh",
+        "en": "HCM Ideology",
+        "vi": "Tư tưởng Hồ Chí Minh"
+      },
+      "credits": 2,
+      "semester": 9,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "MLN111, MLN122"
+        },
+        "raw": "MLN111, MLN122"
+      }
+    },
+    {
+      "code": "MLN131",
+      "name": {
+        "full": "Scientific socialism_Chủ nghĩa xã hội khoa học",
+        "en": "Scientific socialism",
+        "vi": "Chủ nghĩa xã hội khoa học"
+      },
+      "credits": 2,
+      "semester": 9,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "MLN111, MLN122"
+        },
+        "raw": "MLN111, MLN122"
+      }
+    },
+    {
+      "code": "VNR202",
+      "name": {
+        "full": "History of CPV_Lịch sử Đảng Cộng sản Việt Nam",
+        "en": "History of CPV",
+        "vi": "Lịch sử Đảng Cộng sản Việt Nam"
+      },
+      "credits": 2,
+      "semester": 9,
+      "prerequisites": {
+        "required": true,
+        "logic": {
+          "operator": "SINGLE",
+          "code": "MLN111, MLN122"
+        },
+        "raw": "MLN111, MLN122"
+      }
+    }
+  ]
+}

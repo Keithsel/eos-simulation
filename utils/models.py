@@ -1,3 +1,4 @@
+import os
 from sqlalchemy import (
     create_engine,
     Column,
@@ -10,12 +11,17 @@ from sqlalchemy import (
     Index,
 )
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, sessionmaker
 from sqlalchemy.ext.mutable import MutableDict, MutableList
 from datetime import datetime
 
+instance_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "instance")
+os.makedirs(instance_path, exist_ok=True)
+
+db_path = os.path.join(instance_path, "quiz.db")
+engine = create_engine(f"sqlite:///{db_path}")
+
 Base = declarative_base()
-engine = create_engine("sqlite:///quiz.db")
 
 
 class User(Base):
@@ -110,21 +116,28 @@ class QuizResult(Base):
     Index("idx_result_token", "result_token")
 
 
-# Initialize default subject after creating tables
-def init_default_subjects(engine):
-    from sqlalchemy.orm import Session
+def init_db():
+    """Initialize database, create tables and add initial subjects"""
+    Base.metadata.drop_all(engine) # Uncomment to drop all tables before creating new ones to avoid conflicts
+    Base.metadata.create_all(engine)
+    
+    Session = sessionmaker(bind=engine)
+    session = Session()
+    
+    if not session.query(Subject).first():
+        # Import here to avoid circular dependency
+        from .add_subject import init_subjects_from_curriculum
+        init_subjects_from_curriculum()
+        
+        sample_subject = Subject(
+            code="SAMPLE",
+            name="Sample Subject", 
+            data_file="quiz_sample.csv"
+        )
+        session.add(sample_subject)
+        session.commit()
+        print("Added sample subject")
+    
+    session.close()
 
-    with Session(engine) as session:
-        if not session.query(Subject).first():
-            default_subject = Subject(
-                code="AIL303m",
-                name="Artificial Intelligence",
-                data_file="quiz_data.csv",
-            )
-            session.add(default_subject)
-            session.commit()
-
-
-# Base.metadata.drop_all(engine) # Uncomment to drop all tables before creating new ones to avoid conflicts
 Base.metadata.create_all(engine)
-init_default_subjects(engine)

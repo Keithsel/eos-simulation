@@ -4,13 +4,15 @@ import os
 import json
 import secrets
 from datetime import datetime
-from models import Subject, TestHistory, engine
+from utils.models import Subject, TestHistory, engine, init_db
 from sqlalchemy.orm import sessionmaker
 from functools import wraps
 from sqlalchemy import func
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
+
+init_db()
 
 quiz_handler = QuizHandler()
 
