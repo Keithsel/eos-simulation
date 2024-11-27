@@ -13,49 +13,71 @@
         return;
     }
 
-    // Clean text helper
-    const cleanText = (text) => text.replace(/"/g, "'").trim();
+    // Clean text helper - handle escapes and normalize whitespace
+    const cleanText = (text) => {
+        return text
+            .replace(/"/g, "'")
+            .replace(/\n/g, ' ')
+            .replace(/\s+/g, ' ')
+            .trim();
+    };
+
+    // Process content that might have text and/or image
+    const processContent = (element) => {
+        if (!element) return null;
+
+        const text = cleanText(element.innerText);
+        // Get question image from within the question prompt area only
+        const questionPrompt = element.closest('.css-dqaucz').querySelector('[id^="prompt-autoGradableResponseId"]');
+        const img = questionPrompt ? questionPrompt.querySelector('img') : null;
+        const imageUrl = img ? img.src : null;
+
+        return imageUrl ? `${text} [Image: ${imageUrl}]` : text;
+    };
+
+    // Process an option element
+    const processOption = (label) => {
+        const text = cleanText(label.innerText);
+        const img = label.querySelector('img');
+        const imageUrl = img ? img.src : null;
+        const input = label.querySelector('input[type="radio"], input[type="checkbox"]');
+
+        return {
+            text: text.trim() === '' ? imageUrl : text,
+            isSelected: input ? input.checked : false
+        };
+    };
 
     // Extract data from each question block
     const quizData = [];
     questionBlocks.forEach(block => {
-        // Extract the question text and image
-        const questionElement = block.querySelector(".css-1474zrz");
+        // Process question content
+        const questionElement = block.querySelector('.css-1474zrz');
         const questionText = questionElement ? cleanText(questionElement.innerText) : null;
-
-        // Get question image from within the question prompt area only
+        
+        // Get question image specifically from the prompt area
         const questionPrompt = block.querySelector('[id^="prompt-autoGradableResponseId"]');
-        const questionImage = questionPrompt ? questionPrompt.querySelector("img") : null;
+        const questionImage = questionPrompt ? questionPrompt.querySelector('img') : null;
         const questionImageUrl = questionImage ? questionImage.src : null;
 
-        // Extract options and the correct answer
+        // Process options and answers
         const options = [];
-        let correctAnswer = []; // Initialize as an array
-
-        const labels = block.querySelectorAll("label");
-        labels.forEach(label => {
-            // Extract option text and image
-            const optionText = cleanText(label.innerText);
-            const optionImage = label.querySelector("img");
-            const optionImageUrl = optionImage ? optionImage.src : null;
-            
-            // Only use the image URL if it's an image-only option
-            const finalOptionText = optionText.trim() === '' ? optionImageUrl : optionText;
-            options.push(finalOptionText);
-
-            // Select both radio and checkbox inputs
-            const input = label.querySelector("input[type='radio'], input[type='checkbox']");
-            if (input && input.checked) {
-                correctAnswer.push(finalOptionText);
+        const correctAnswer = [];
+        
+        block.querySelectorAll('label').forEach(label => {
+            const option = processOption(label);
+            options.push(option.text);
+            if (option.isSelected) {
+                correctAnswer.push(option.text);
             }
         });
 
-        // Append question data if valid
+        // Append question data if valid (matching original format)
         if (questionText && options.length > 0) {
             quizData.push({
                 question: questionImageUrl ? `${questionText} [Image: ${questionImageUrl}]` : questionText,
                 options: options,
-                correct_answer: correctAnswer // Use the array directly
+                correct_answer: correctAnswer
             });
         }
     });
