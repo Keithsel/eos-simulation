@@ -1,0 +1,32 @@
+{% extends "index.html" %}
+
+{% block title %}Configure Quiz - Exam OS{% endblock %}
+
+{% block content %}
+<div class="card">
+  <div class="card-header">
+    <h2 class="mb-0">Configure Your Quiz</h2>
+  </div>
+  <div class="card-body">
+    <form method="POST" action="{{ url_for('configure') }}">
+      <div class="mb-3">
+        <label for="subject" class="form-label">Select Subject:</label>
+        <select class="form-select" id="subject" name="subject" required>
+          {% for subject in subjects %}
+          <option value="{{ subject.code }}">{{ subject.name }} ({{ subject.code }})</option>
+          {% endfor %}
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="num_questions" class="form-label">Number of Questions:</label>
+        <input type="number" class="form-control" id="num_questions" name="num_questions" value="10" min="1" required>
+      </div>
+      <div class="mb-3 form-check">
+        <input type="checkbox" class="form-check-input" id="shuffle_options" name="shuffle_options">
+        <label class="form-check-label" for="shuffle_options">Shuffle Options</label>
+      </div>
+      <button type="submit" class="btn btn-primary">Start Quiz</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

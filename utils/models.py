@@ -12,7 +12,7 @@ from sqlalchemy import (
 )
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, sessionmaker
-from sqlalchemy.ext.mutable import MutableDict, MutableList
+from sqlalchemy.ext.mutable import MutableDict
 from datetime import datetime
 
 instance_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), "instance")
@@ -29,8 +29,8 @@ class User(Base):
 
     id = Column(Integer, primary_key=True)
     username = Column(String, unique=True)
-    question_bag = Column(MutableList.as_mutable(JSON))
-    penalty_questions = Column(MutableDict.as_mutable(JSON))
+    question_bag = Column(MutableDict.as_mutable(JSON), default=dict)
+    penalty_questions = Column(MutableDict.as_mutable(JSON), default=dict)
     created_at = Column(DateTime, default=datetime.now)
     updated_at = Column(DateTime, default=datetime.now, onupdate=datetime.now)
 
@@ -118,26 +118,26 @@ class QuizResult(Base):
 
 def init_db():
     """Initialize database, create tables and add initial subjects"""
-    Base.metadata.drop_all(engine) # Uncomment to drop all tables before creating new ones to avoid conflicts
+    # Base.metadata.drop_all(engine) # Uncomment to drop all tables before creating new ones to avoid conflicts
     Base.metadata.create_all(engine)
-    
+
     Session = sessionmaker(bind=engine)
     session = Session()
-    
+
     if not session.query(Subject).first():
         # Import here to avoid circular dependency
         from .add_subject import init_subjects_from_curriculum
+
         init_subjects_from_curriculum()
-        
+
         sample_subject = Subject(
-            code="SAMPLE",
-            name="Sample Subject", 
-            data_file="quiz_sample.csv"
+            code="SAMPLE", name="Sample Subject", data_file="quiz_sample.csv"
         )
         session.add(sample_subject)
         session.commit()
         print("Added sample subject")
-    
+
     session.close()
+
 
 Base.metadata.create_all(engine)

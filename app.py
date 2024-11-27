@@ -12,9 +12,9 @@ from sqlalchemy import func
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
 
-init_db()
-
 quiz_handler = QuizHandler()
+
+init_db()
 
 
 def login_required(f):
@@ -177,22 +177,20 @@ def configure():
         shuffle_options = request.form.get("shuffle_options") == "on"
         subject_code = request.form.get("subject", "AIL303m")
 
-        quiz_token = secrets.token_urlsafe(32)
-        session["quiz_token"] = quiz_token
-        session["subject"] = subject_code
-
         subject_quiz_handler = QuizHandler(subject_code)
         quiz = subject_quiz_handler.initialize_quiz(
             username, num_questions, shuffle_options
         )
-        quiz["token"] = quiz_token
+
+        quiz["token"] = secrets.token_urlsafe(32)
+        session["quiz_token"] = quiz["token"]
+        session["subject"] = subject_code
         quiz["time_limit"] = time_limit
         quiz["subject"] = {
             "code": subject_quiz_handler.subject.code,
             "name": subject_quiz_handler.subject.name,
         }
-        subject_quiz_handler.save_quiz_state(username, quiz_token, quiz)
-
+        subject_quiz_handler.save_quiz_state(username, quiz["token"], quiz)
         return redirect(url_for("exam"))
 
     db = sessionmaker(bind=engine)()
@@ -321,9 +319,11 @@ def debug_user(username):
     debug_info = {
         "username": user.username,
         "penalty_questions": user.penalty_questions,
-        "penalty_count": len(user.penalty_questions),
+        "penalty_count": sum(
+            len(penalties) for penalties in user.penalty_questions.values()
+        ),
         "question_bag": user.question_bag,
-        "question_bag_count": len(user.question_bag),
+        "question_bag_count": sum(len(bag) for bag in user.question_bag.values()),
         "active_quiz": bool(user.active_quiz),
         "quiz_token": user.active_quiz.quiz_token if user.active_quiz else None,
         "test_history": [

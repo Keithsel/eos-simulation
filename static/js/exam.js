@@ -243,7 +243,11 @@ function updateTimer() {
 
 document.addEventListener('DOMContentLoaded', () => {
     try {
-
+        if (!questionsData || questionsData.length === 0) {
+            console.error('No questions available');
+            location.href = '/configure';
+            return;
+        }
         updateQuestion();
         updateProgress();
 
